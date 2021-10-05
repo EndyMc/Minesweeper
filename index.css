@@ -1,0 +1,148 @@
+:root {
+    --board-width: 40;
+    --board-height: 30;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    border: 0;
+
+    background-color: #1F1F1F;
+
+    font-family: glory;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+board {
+    --width: 90vmin;
+    --height: calc(var(--width) * (var(--board-height) / var(--board-width)));
+
+    position: absolute;
+
+    width: var(--width);
+    height: var(--height);
+
+    left: calc((100vw - var(--width)) / 2);
+    top: calc((100vh - var(--height)) / 2);
+
+    background-color: white;
+
+    z-index: 0;
+}
+
+tile {
+    --width: calc(100% / var(--board-width));
+    --height: calc(100% / var(--board-height));
+
+    position: absolute;
+
+    cursor: pointer;
+
+    width: var(--width);
+    height: var(--height);
+
+    border-radius: 2.5%;
+}
+
+center {
+    position: relative;
+}
+
+@font-face {
+    font-family: glory;
+    src: url(./Glory.ttf);
+}
+
+#game-over-alert {
+    --width: 20vmin;
+    --height: 30vmin;
+    
+    position: absolute;
+    
+    width: var(--width);
+    height: var(--height);
+    
+    left: calc((100vw - var(--width)) / 2);
+    top: calc((100vh - var(--height)) / 2);
+    
+    border-radius: 1vmin;
+    
+    background-color: #7ED6DA;
+    
+    z-index: 5;
+}
+
+#game-over-text {
+    position: absolute;
+    
+    line-break: normal;
+    text-align: center;
+    display: inline-grid;
+    align-items: center;
+    
+    width: 100%;
+    height: calc(100% - 15% - 5%);
+    
+    font-size: 1.25em;
+}
+
+#game-over-retry-button {
+    --width: 95%;
+    --height: 15%;
+    
+    position: absolute;
+    
+    width: var(--width);
+    height: var(--height);
+
+    left: calc((100% - var(--width)) / 2);
+    bottom: 2%;
+
+    border-radius: 1vmin;
+
+    background-color: forestgreen;
+    color: white;
+
+    cursor: pointer;
+
+    text-align: center;
+    vertical-align: center;
+
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+#background-dim {
+    width: 100vw;
+    height: 100vh;
+
+    background-color: black;
+    opacity: 0.8;
+
+    z-index: 2;
+}
+
+#info-panel {
+    --width: 90vmin;
+    --height: calc(var(--width) * (var(--board-height) / var(--board-width)) / 15);
+
+    position: absolute;
+    
+    width: var(--width);
+    height: var(--height);
+
+    left: calc((100vw - var(--width)) / 2);
+    top: calc((100vh - (calc(var(--width) * (var(--board-height) / var(--board-width))))) / 3);
+
+    border-top-left-radius: 1vmin;
+    border-top-right-radius: 1vmin;
+
+    background-color: #CDDAB0;
+}

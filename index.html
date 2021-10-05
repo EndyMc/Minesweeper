@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <!-- Set title and favicon -->
+        <title>Minesweeper</title>
+        <link rel="shortcut icon" href="./favicon.png" type="image/png">
+
+        <!-- Load files -->
+        <link rel="stylesheet" href="./index.css">
+        <script src="./index.js"></script>
+
+    </head>
+    <body onload="init()">
+        <div id="info-panel">
+            <span id="time-counter"></span>
+            <span id="mine-counter"></span>
+        </div>
+        <board></board>
+
+        <div id="background-dim"></div>
+
+        <div id="game-over-alert">
+            <span id="game-over-text">
+                <span id="time-taken"></span>
+                <span id="best-time"></span>
+            </span>
+            <div id="game-over-retry-button" onclick="init()">Play Again</div>
+        </div>
+    </body>
+</html>
