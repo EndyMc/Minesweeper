@@ -76,6 +76,8 @@ center {
     
     background-color: #7ED6DA;
     
+    display: none;
+    
     z-index: 5;
 }
 
