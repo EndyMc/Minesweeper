@@ -277,11 +277,11 @@ class Number_Tile extends Tile {
     }
 }
 
-function init() {
+function init(diff = Board.DEFAULT_DIFFICULTY) {
     document.getElementsByTagName('board')[0].innerHTML = "";
 
     document.getElementById('game-over-alert').style.display = "none";
     document.getElementById('background-dim').style.display = "none";
 
-    board = new Board();
+    board = new Board(diff);
 }
