@@ -63,7 +63,7 @@ class Board {
                     bombsLeftToPlace--;
                     map[x].push(new BombTile(x, y));
                 } else {
-                    map[x].push(new NumberTile(x, y));
+                    map[x].push(new NumbergiTile(x, y));
                 }
             }
         }
@@ -280,7 +280,7 @@ class NumberTile extends Tile {
 function init() {
     var diff = location.href.split("?");
 
-    if (diff.length < 2) location.href = location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+    if (diff.length < 2) location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
     else diff = diff[diff.length - 1];
 
     document.getElementsByTagName('board')[0].innerHTML = "";
