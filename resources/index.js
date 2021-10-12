@@ -304,7 +304,7 @@ function parseParameters() {
 function init() {
     var diff = parseParameters().diff;
 
-    if (diff == undefined) { console.error(diff); return; } //location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+    if (diff == undefined) location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
 
     document.getElementsByTagName('board')[0].innerHTML = "";
 
