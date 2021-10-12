@@ -61,9 +61,9 @@ class Board {
                 var tilesLeft = ((this.size.width * this.size.height) - (x * this.size.height + y));
                 if (Math.random() < bombsLeftToPlace / tilesLeft) {
                     bombsLeftToPlace--;
-                    map[x].push(new Bomb_Tile(x, y));
+                    map[x].push(new BombTile(x, y));
                 } else {
-                    map[x].push(new Number_Tile(x, y));
+                    map[x].push(new NumberTile(x, y));
                 }
             }
         }
@@ -264,20 +264,25 @@ class Tile {
     }
 }
 
-class Bomb_Tile extends Tile {
+class BombTile extends Tile {
     constructor(x, y) {
         super(x, y, true);
     }
 }
 
-class Number_Tile extends Tile {
+class NumberTile extends Tile {
     constructor(x, y) {
         super(x, y, false);
         this.numberOfBombs = -1;
     }
 }
 
-function init(diff = Board.DEFAULT_DIFFICULTY) {
+function init() {
+    var diff = location.href.split("?");
+
+    if (diff.length < 2) location.href = location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+    else diff = diff[diff.length - 1];
+
     document.getElementsByTagName('board')[0].innerHTML = "";
 
     document.getElementById('game-over-alert').style.display = "none";
