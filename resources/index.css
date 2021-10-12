@@ -57,7 +57,7 @@ center {
 
 @font-face {
     font-family: glory;
-    src: url(./Glory.ttf);
+    src: url(Glory.ttf);
 }
 
 #game-over-alert {

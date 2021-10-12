@@ -137,7 +137,7 @@ class Board {
         tile.isVisualized = true;
         
         if (tile.isBomb) {
-            tile.sprite.innerHTML = "<img src='./mine.png' alt='M' style='color: red; width: 50%; height: 50%; left: calc((100% - 50%) / 2); top: calc((100% - 50%) / 2); position: relative;'></img>";
+            tile.sprite.innerHTML = "<img src='images/mine.png' alt='M' style='color: red; width: 50%; height: 50%; left: calc((100% - 50%) / 2); top: calc((100% - 50%) / 2); position: relative;'></img>";
 
             if (!this.hasLost) {
                 this.hasLost = true;
@@ -252,7 +252,7 @@ class Tile {
 
             this.isFlagged = !this.isFlagged;
             if (this.isFlagged) {
-                this.sprite.innerHTML = "<img style='color: red; position: relative;' src='./flag.png' alt='F' width='" + (this.sprite.offsetWidth * 0.5) + "' height='" + (this.sprite.offsetHeight * 0.5) + "'>"
+                this.sprite.innerHTML = "<img style='color: red; position: relative;' src='images/flag.png' alt='F' width='" + (this.sprite.offsetWidth * 0.5) + "' height='" + (this.sprite.offsetHeight * 0.5) + "'>"
 
                 this.sprite.children[0].style.top = "calc((100% - " + this.sprite.children[0].offsetHeight + "px) / 2)";
                 this.sprite.children[0].style.left = "calc((100% - " + this.sprite.children[0].offsetWidth + "px) / 2)";
