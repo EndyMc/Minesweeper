@@ -286,6 +286,8 @@ class NumberTile extends Tile {
 
 function parseParameters() {
     var parameters = {};
+
+    if (location.href.replace(/[^\?]/g, "").length == 1) return parameters;
     
     location.href
         .split("?")[1]
@@ -300,8 +302,9 @@ function parseParameters() {
 }
 
 function init() {
-    if (!location.href.includes("?")) location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
     var diff = parseParameters().diff;
+
+    if (diff == undefined) location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
 
     document.getElementsByTagName('board')[0].innerHTML = "";
 
