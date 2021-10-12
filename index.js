@@ -27,16 +27,27 @@ class Board {
     };
 
     constructor(difficulty = Board.DEFAULT_DIFFICULTY) {
-        var size = {
-            width: Board.DEFAULT_BOARD[difficulty].width,
-            height: Board.DEFAULT_BOARD[difficulty].height
-        };
+        if (difficulty == "custom") {
+            var parameters = parseParameters();
 
+            this.size = {
+                width: parameters.width,
+                height: parameters.height
+            }
+
+            this.numberOfBombs = Number(parameters.bombs);
+        } else if (/^(easy|medium|hard)$/.test(difficulty)) {
+            this.size = {
+                width: Board.DEFAULT_BOARD[difficulty].width,
+                height: Board.DEFAULT_BOARD[difficulty].height
+            };
+            
+            this.numberOfBombs = Board.DEFAULT_BOARD[difficulty].bombs;
+        } else {
+            location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+        }
         
         this.difficulty = difficulty;
-        this.size = size;
-
-        this.numberOfBombs = Board.DEFAULT_BOARD[difficulty].bombs;
         this.map = this.createMap();
 
         this.numberOfPlacedFlags = 0;
@@ -48,8 +59,8 @@ class Board {
 
         var root = document.querySelector(':root');
 
-        root.style.setProperty('--board-width' , size.width );
-        root.style.setProperty('--board-height', size.height);
+        root.style.setProperty('--board-width' , this.size.width );
+        root.style.setProperty('--board-height', this.size.height);
     }
 
     createMap() {
@@ -63,7 +74,7 @@ class Board {
                     bombsLeftToPlace--;
                     map[x].push(new BombTile(x, y));
                 } else {
-                    map[x].push(new NumbergiTile(x, y));
+                    map[x].push(new NumberTile(x, y));
                 }
             }
         }
@@ -171,19 +182,15 @@ function displayGameOver() {
     var convertToTime = (timeInMilis) => timeInMilis == undefined || timeInMilis == null || timeInMilis == "-" ? "-" : (Math.floor(timeInMilis / (1000 * 60 * 60)) > 0 ? Math.floor(timeInMilis / (1000 * 60 * 60)) + "h, " : "") + (Math.floor(timeInMilis / (1000 * 60) % 60) > 0 ? Math.floor(timeInMilis / (1000 * 60) % 60) + "m, " : "") + Math.floor(timeInMilis / (1000) % 60) + "s";
 
     if (localStorage.getItem('best-time') == null) {
-        localStorage.setItem('best-time', JSON.stringify({
-            easy: "-",
-            medium: "-",
-            hard: "-"
-        }));
+        localStorage.setItem('best-time', JSON.stringify({}));
     }
     
     var bestTime = JSON.parse(localStorage.getItem('best-time'));
     if (!board.hasLost) {
         var endTime = performance.now();
 
-        if (bestTime[board.difficulty] == "-" || endTime - board.startTime < Number(bestTime[board.difficulty])) {
-            bestTime[board.difficulty] = endTime - board.startTime;
+        if (bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs] == undefined || endTime - board.startTime < Number(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs])) {
+            bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs] = endTime - board.startTime;
             localStorage.setItem("best-time", JSON.stringify(bestTime));
         }
 
@@ -192,7 +199,7 @@ function displayGameOver() {
         document.getElementById('time-taken').innerText = "Time taken: -";
     }
 
-    document.getElementById('best-time').innerText = "Best time: " + convertToTime(bestTime[board.difficulty]);
+    document.getElementById('best-time').innerText = "Best time: " + convertToTime(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs]);
 }
 
 function getNumberOfBombs(x, y, map = board.map) {
@@ -277,11 +284,25 @@ class NumberTile extends Tile {
     }
 }
 
-function init() {
-    var diff = location.href.split("?");
+function parseParameters() {
+    var parameters = {};
+    
+    location.href
+        .split("?")[1]
+        .split("&")
+            .forEach((parameter) => {
+                if (parameter.replace(/[^=]/g, "").length == 1) {
+                    parameters[parameter.split("=")[0]] = parameter.split("=")[1];
+                }
+            });
+    console.debug(parameters);
 
-    if (diff.length < 2) location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
-    else diff = diff[diff.length - 1];
+    return parameters;
+}
+
+function init() {
+    if (!location.href.includes("?")) location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+    var diff = parseParameters().diff;
 
     document.getElementsByTagName('board')[0].innerHTML = "";
 
