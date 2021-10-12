@@ -295,7 +295,6 @@ function parseParameters() {
                     parameters[parameter.split("=")[0]] = parameter.split("=")[1];
                 }
             });
-    console.debug(parameters);
 
     return parameters;
 }
