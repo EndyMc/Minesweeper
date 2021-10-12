@@ -287,17 +287,17 @@ class NumberTile extends Tile {
 function parseParameters() {
     var parameters = {};
 
-    if (location.href.replace(/[^\?]/g, "").length == 1) return parameters;
+    if (location.href.replace(/[^\?]/g, "").length == 1) {
+        location.href
+            .split("?")[1]
+            .split("&")
+                .forEach((parameter) => {
+                    if (parameter.replace(/[^=]/g, "").length == 1) {
+                        parameters[parameter.split("=")[0]] = parameter.split("=")[1];
+                    }
+                });
+    }
     
-    location.href
-        .split("?")[1]
-        .split("&")
-            .forEach((parameter) => {
-                if (parameter.replace(/[^=]/g, "").length == 1) {
-                    parameters[parameter.split("=")[0]] = parameter.split("=")[1];
-                }
-            });
-
     return parameters;
 }
 
