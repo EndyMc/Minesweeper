@@ -1,6 +1,4 @@
 "use strict";
-var board;
-
 class Board {
     static DEFAULT_DIFFICULTY = "medium";
     static DEFAULT_BOARD = {
@@ -311,5 +309,5 @@ function init() {
     document.getElementById('game-over-alert').style.display = "none";
     document.getElementById('background-dim').style.display = "none";
 
-    board = new Board(diff);
+    window.board = new Board(diff);
 }
