@@ -29,11 +29,15 @@ class Board {
             var parameters = parseParameters();
 
             this.size = {
-                width: parameters.width,
-                height: parameters.height
+                width: Number(parameters.width),
+                height: Number(parameters.height)
             }
 
-            this.numberOfBombs = Number(parameters.bombs);
+            if (parameters.width == undefined || parameters.height == undefined) {
+                location = location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+            }
+
+            this.numberOfBombs = parameters.bombs == undefined ? Math.ceil(this.size.width * this.size.height / 5) : Number(parameters.bombs);
         } else if (/^(easy|medium|hard)$/.test(difficulty)) {
             this.size = {
                 width: Board.DEFAULT_BOARD[difficulty].width,
@@ -42,7 +46,7 @@ class Board {
             
             this.numberOfBombs = Board.DEFAULT_BOARD[difficulty].bombs;
         } else {
-            location.href = "http://" + location.host + location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+            location = location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
         }
         
         this.difficulty = difficulty;
