@@ -51,7 +51,7 @@ tile {
     border-radius: 2.5%;
 }
 
-center {
+center, img {
     position: relative;
 }
 
@@ -119,6 +119,29 @@ center {
 
     font-size: 2.5em;
     font-weight: bold;
+}
+
+#open-settings-container {
+    width: 15%;
+
+    top: 1%;
+    right: 1%;
+
+    position: absolute;
+}
+
+#retry-icon, #settings-icon {
+    --size: 75%;
+
+    height: var(--size);
+    max-width: var(--size);
+
+    cursor: pointer;
+}
+
+#settings-icon {
+    left: calc((100% - var(--size)) / 2);
+    top: calc((100% - var(--size)) / 2);
 }
 
 #background-dim {

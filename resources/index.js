@@ -303,6 +303,14 @@ function parseParameters() {
     return parameters;
 }
 
+function openSettings() {
+
+}
+
+function closeSettings() {
+    
+}
+
 function init() {
     var diff = parseParameters().diff;
 
