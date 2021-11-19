@@ -121,6 +121,10 @@ center, img {
     font-weight: bold;
 }
 
+#settings-alert {
+    display: none;
+}
+
 #open-settings-container {
     width: 15%;
 
