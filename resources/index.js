@@ -304,11 +304,34 @@ function parseParameters() {
 }
 
 function openSettings() {
+    var settingsAlert = document.getElementById('settings-alert');
+    var gameOverAlert = document.getElementById('game-over-alert');
 
+    settingsAlert.style.display = "flex";
+    gameOverAlert.style.display = "none";
+}
+
+function applySettingsChanges() {
+    // Change the difficulty if it was changed
+    if (board.difficulty != document.getElementById('diffs-list').value) difficultyChange();
+
+    // If the site hasn't reloaded yet, close this menu and open the game-over menu instead
+    closeSettings();
+}
+
+function difficultyChange() {
+    var newValue = document.getElementById('diffs-list').value;
+
+    // Changes the location to this, and with that also changes the difficulty
+    location = location.pathname + "?diff=" + newValue;
 }
 
 function closeSettings() {
-    
+    var settingsAlert = document.getElementById('settings-alert');
+    var gameOverAlert = document.getElementById('game-over-alert');
+
+    settingsAlert.style.display = "none";
+    gameOverAlert.style.display = "block";
 }
 
 function init() {
@@ -320,6 +343,8 @@ function init() {
 
     document.getElementById('game-over-alert').style.display = "none";
     document.getElementById('background-dim').style.display = "none";
+
+    document.getElementById(diff).selected = "selected";
 
     window.board = new Board(diff);
 }

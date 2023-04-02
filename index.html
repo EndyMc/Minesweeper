@@ -33,13 +33,20 @@
         </div>
 
         <div id="settings-alert">
-            <label for="diffs" style="color: white; display: none;">Difficulty:</label>
-            <select name="diffs" id="diffs-list" style="display: none;">
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-              <option value="custom">Custom</option>
+            <label for="diffs-list" style="color: black;">Difficulty:</label>
+            <select name="diffs" id="diffs-list">
+              <option value="easy" id="easy">Easy</option>
+              <option value="medium" id="medium">Medium</option>
+              <option value="hard" id="hard">Hard</option>
+              <option value="custom" id="custom">Custom</option>
             </select>
+            <div class="new-line"></div>
+
+            <!-- Used to cancel any and all changes made since entering this view -->
+            <button id="cancel-settings" onclick="closeSettings();">Cancel</button>
+
+            <!-- Used to apply all changes -->
+            <button id="apply-settings" onclick="applySettingsChanges();">Apply</button>
         </div>
     </body>
 </html>
