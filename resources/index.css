@@ -44,6 +44,7 @@ tile {
     position: absolute;
 
     cursor: pointer;
+    display: flex;
 
     width: var(--width);
     height: var(--height);
@@ -53,6 +54,7 @@ tile {
 
 center, img {
     position: relative;
+    margin: auto;
 }
 
 @font-face {
@@ -108,15 +110,14 @@ center, img {
     bottom: 2%;
 
     border-radius: 1vmin;
+    display: flex;
 
     background-color: forestgreen;
     color: white;
 
     cursor: pointer;
 
-    text-align: center;
-    vertical-align: center;
-
+    /* This below isn't really needed, though it may have an effect if the image were to be unavailable */
     font-size: 2.5em;
     font-weight: bold;
 }

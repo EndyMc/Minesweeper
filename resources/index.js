@@ -139,7 +139,7 @@ class Board {
         tile.isVisualized = true;
         
         if (tile.isBomb) {
-            tile.sprite.innerHTML = "<img src='images/mine.png' alt='M' style='color: red; width: 50%; height: 50%; left: calc((100% - 50%) / 2); top: calc((100% - 50%) / 2); position: relative;'></img>";
+            tile.sprite.innerHTML = "<img src='images/mine.png' alt='M' style='color: red; width: 50%; height: 50%;'></img>";
 
             if (!this.hasLost) {
                 this.hasLost = true;
@@ -147,7 +147,6 @@ class Board {
             }
         } else if (tile.numberOfBombs != 0) {
             tile.sprite.innerHTML = "<center style='color: " + (tile.numberOfBombs == 1 ? "green" : tile.numberOfBombs == 2 ? "aqua" : tile.numberOfBombs == 3 ? "orange" : "coral") + ";'>" + tile.numberOfBombs + "</center>";
-            tile.sprite.children[0].style.top = "calc((100% - " + tile.sprite.children[0].offsetHeight + "px) / 2)";
         } else {
             if (this.checkedTiles[(x - 1) + ", " + (y)] == undefined && x - 1 >= 0) { this.checkedTiles[(x - 1) + ", " + (y)] = this.map[x - 1][y].numberOfBombs; this.visualizeMapAt(x - 1, y); }
             if (this.checkedTiles[(x + 1) + ", " + (y)] == undefined && x + 1 < this.size.width) { this.checkedTiles[(x + 1) + ", " + (y)] = this.map[x + 1][y].numberOfBombs; this.visualizeMapAt(x + 1, y); }
@@ -254,10 +253,7 @@ class Tile {
 
             this.isFlagged = !this.isFlagged;
             if (this.isFlagged) {
-                this.sprite.innerHTML = "<img style='color: red; position: relative;' src='images/flag.png' alt='F' width='" + (this.sprite.offsetWidth * 0.5) + "' height='" + (this.sprite.offsetHeight * 0.5) + "'>"
-
-                this.sprite.children[0].style.top = "calc((100% - " + this.sprite.children[0].offsetHeight + "px) / 2)";
-                this.sprite.children[0].style.left = "calc((100% - " + this.sprite.children[0].offsetWidth + "px) / 2)";
+                this.sprite.innerHTML = "<img style='color: red; position: relative;width:50%;height:50%;' src='images/flag.png' alt='F'>";
 
                 board.numberOfPlacedFlags++;
             } else {
