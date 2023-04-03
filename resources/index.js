@@ -309,6 +309,8 @@ function openSettings() {
 
     settingsAlert.style.display = "flex";
     gameOverAlert.style.display = "none";
+
+    document.getElementById(parseParameters().diff).selected = "selected";
 }
 
 function applySettingsChanges() {
@@ -343,8 +345,6 @@ function init() {
 
     document.getElementById('game-over-alert').style.display = "none";
     document.getElementById('background-dim').style.display = "none";
-
-    document.getElementById(diff).selected = "selected";
 
     window.board = new Board(diff);
 }
