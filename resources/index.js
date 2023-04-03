@@ -55,6 +55,8 @@ class Board {
         this.numberOfPlacedFlags = 0;
 
         this.hasLost = false;
+        this.hasStarted = false;
+        
         this.startTime = performance.now();
 
         this.checkedTiles = {};
@@ -65,13 +67,18 @@ class Board {
         root.style.setProperty('--board-height', this.size.height);
     }
 
-    createMap() {
+    createMap(tilesToExclude = []) {
         var map = [];
         var bombsLeftToPlace = this.numberOfBombs;
         for (var x = 0; x < this.size.width; x++) {
             map.push([]);
             for (var y = 0; y < this.size.height; y++) {
-                var tilesLeft = ((this.size.width * this.size.height) - (x * this.size.height + y));
+                var tilesLeft = ((this.size.width * this.size.height) - (x * this.size.height + y) - tilesToExclude.length);
+                if (tilesToExclude.some((tile) =>  tile.x == x && tile.y == y )) {
+                    map[x].push(new NumberTile(x, y))
+                    continue;
+                }
+
                 if (Math.random() < bombsLeftToPlace / tilesLeft) {
                     bombsLeftToPlace--;
                     map[x].push(new BombTile(x, y));
@@ -159,7 +166,6 @@ class Board {
             if (this.checkedTiles[(x + 1) + ", " + (y + 1)] == undefined && x + 1 < this.size.width && y + 1 < this.size.height) { this.checkedTiles[(x + 1) + ", " + (y + 1)] = this.map[x + 1][y + 1].numberOfBombs; this.visualizeMapAt(x + 1, y + 1); }
             if (this.checkedTiles[(x - 1) + ", " + (y + 1)] == undefined && x - 1 >= 0 && y + 1 < this.size.height) { this.checkedTiles[(x - 1) + ", " + (y + 1)] = this.map[x - 1][y + 1].numberOfBombs; this.visualizeMapAt(x - 1, y + 1); }
             if (this.checkedTiles[(x + 1) + ", " + (y - 1)] == undefined && x + 1 < this.size.width && y - 1 >= 0) { this.checkedTiles[(x + 1) + ", " + (y - 1)] = this.map[x + 1][y - 1].numberOfBombs; this.visualizeMapAt(x + 1, y - 1); }
-
         }
 
         tile.sprite.style.cursor = "default";
@@ -251,7 +257,33 @@ class Tile {
         document.getElementsByTagName('board')[0].appendChild(sprite);
 
         sprite.onclick = () => {
-            board.visualizeMapAt(this.position.x, this.position.y);
+            if (!board.hasStarted) {
+                board.hasStarted = true;
+                // Make it so that there aren't any bombs in the tile which the player clicked on
+                // and in the tiles closest to the player.
+                var tilesToExclude = [
+                    { x: this.position.x - 1, y: this.position.y - 1 },
+                    { x: this.position.x + 0, y: this.position.y - 1 },
+                    { x: this.position.x + 1, y: this.position.y - 1 },
+                    
+                    { x: this.position.x - 1, y: this.position.y + 0 },
+                    { x: this.position.x + 0, y: this.position.y + 0 },
+                    { x: this.position.x + 1, y: this.position.y + 0 },
+                    
+                    { x: this.position.x - 1, y: this.position.y + 1 },
+                    { x: this.position.x + 0, y: this.position.y + 1 },
+                    { x: this.position.x + 1, y: this.position.y + 1 },
+                ];
+                
+                // Remove all listed tiles which are offscreen, as to not break anything
+                tilesToExclude.filter((value) => value.x >= 0 && value.x < board.size.width && value.y >= 0 && value.y < board.size.height);
+                
+                // Generate a new board with the condition that these tiles aren't bombs
+                board.map = board.createMap(tilesToExclude);
+                board.visualizeMapAt(this.position.x, this.position.y);
+            } else {
+                board.visualizeMapAt(this.position.x, this.position.y);
+            }
         }
 
         sprite.oncontextmenu = (ev) => {
