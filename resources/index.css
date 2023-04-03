@@ -60,7 +60,7 @@ center, img {
     src: url(Glory.ttf);
 }
 
-#game-over-alert {
+#game-over-alert, #settings-alert {
     --width: 20vmin;
     --height: 30vmin;
     
@@ -192,26 +192,8 @@ center, img {
 }
 
 #settings-alert {
-    --width: 20vmin;
-    --height: 30vmin;
-
-    width: var(--width);
-    height: var(--height);
-
-    left: calc((100vw - var(--width)) / 2);
-    top: calc((100vh - var(--height)) / 2);
-
-    display: none;
-    position: absolute;
-
-    border-radius: 1vmin;
-
-    background-color: #7ED6DA;
-
     justify-content: space-between;
     flex-wrap: wrap;
-
-    z-index: 5;
 }
 
 #apply-settings {
