@@ -57,6 +57,10 @@ center, img {
     margin: auto;
 }
 
+button {
+    font-family: glory;
+}
+
 @font-face {
     font-family: glory;
     src: url(Glory.ttf);
