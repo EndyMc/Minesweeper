@@ -148,10 +148,18 @@ class Board {
         } else if (tile.numberOfBombs != 0) {
             tile.sprite.innerHTML = "<center style='color: " + (tile.numberOfBombs == 1 ? "green" : tile.numberOfBombs == 2 ? "aqua" : tile.numberOfBombs == 3 ? "orange" : "coral") + ";'>" + tile.numberOfBombs + "</center>";
         } else {
+            // Check cardinal directions
             if (this.checkedTiles[(x - 1) + ", " + (y)] == undefined && x - 1 >= 0) { this.checkedTiles[(x - 1) + ", " + (y)] = this.map[x - 1][y].numberOfBombs; this.visualizeMapAt(x - 1, y); }
             if (this.checkedTiles[(x + 1) + ", " + (y)] == undefined && x + 1 < this.size.width) { this.checkedTiles[(x + 1) + ", " + (y)] = this.map[x + 1][y].numberOfBombs; this.visualizeMapAt(x + 1, y); }
             if (this.checkedTiles[(x) + ", " + (y - 1)] == undefined && y - 1 >= 0) { this.checkedTiles[(x) + ", " + (y - 1)] = this.map[x][y - 1].numberOfBombs; this.visualizeMapAt(x, y - 1); }
             if (this.checkedTiles[(x) + ", " + (y + 1)] == undefined && y + 1 < this.size.height) { this.checkedTiles[(x) + ", " + (y + 1)] = this.map[x][y + 1].numberOfBombs; this.visualizeMapAt(x, y + 1); }
+
+            // Check diagonals
+            if (this.checkedTiles[(x - 1) + ", " + (y - 1)] == undefined && x - 1 >= 0 && y - 1 >= 0) { this.checkedTiles[(x - 1) + ", " + (y - 1)] = this.map[x - 1][y - 1].numberOfBombs; this.visualizeMapAt(x - 1, y - 1); }
+            if (this.checkedTiles[(x + 1) + ", " + (y + 1)] == undefined && x + 1 < this.size.width && y + 1 < this.size.height) { this.checkedTiles[(x + 1) + ", " + (y + 1)] = this.map[x + 1][y + 1].numberOfBombs; this.visualizeMapAt(x + 1, y + 1); }
+            if (this.checkedTiles[(x - 1) + ", " + (y + 1)] == undefined && x - 1 >= 0 && y + 1 < this.size.height) { this.checkedTiles[(x - 1) + ", " + (y + 1)] = this.map[x - 1][y + 1].numberOfBombs; this.visualizeMapAt(x - 1, y + 1); }
+            if (this.checkedTiles[(x + 1) + ", " + (y - 1)] == undefined && x + 1 < this.size.width && y - 1 >= 0) { this.checkedTiles[(x + 1) + ", " + (y - 1)] = this.map[x + 1][y - 1].numberOfBombs; this.visualizeMapAt(x + 1, y - 1); }
+
         }
 
         tile.sprite.style.cursor = "default";
