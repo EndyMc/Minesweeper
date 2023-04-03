@@ -35,19 +35,23 @@
         <div id="settings-alert">
             <div id="settings">
                 <label for="diffs-list">Difficulty:</label>
-                <select name="diffs" id="diffs-list">
+                <select name="diffs" id="diffs-list" onchange="difficultyListChanged();">
                     <option value="easy" id="easy">Easy</option>
                     <option value="medium" id="medium">Medium</option>
                     <option value="hard" id="hard">Hard</option>
                     <option value="custom" id="custom">Custom</option>
                 </select>
+
+                <input id="width-settings-input">
+                <input id="height-settings-input">
+                <input id="bombs-settings-input">
             </div>
 
             <!-- Used to cancel any and all changes made since entering this view -->
-            <button id="cancel-settings" onclick="closeSettings();">Cancel</button>
+            <button id="cancel-settings" onclick="closeSettings();">✗</button>
 
             <!-- Used to apply all changes -->
-            <button id="apply-settings" onclick="applySettingsChanges();">Apply</button>
+            <button id="apply-settings" onclick="applySettingsChanges();">✓</button>
         </div>
     </body>
 </html>
