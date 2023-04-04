@@ -350,6 +350,22 @@ function openSettings() {
 
     document.getElementById(difficulty).selected = "selected";
 
+    var onblur = (ev, word, number) => {
+        if (!/^\d*$/.test(ev.target.value)) {
+            ev.target.value = "";
+            ev.target.placeholder = "Invalid input, please use digits only";
+        } else if (Number(ev.target.value) >= number) {
+            ev.target.value = "";
+            ev.target.placeholder = "Invalid input, the max " + word + " is: " + number;
+        }
+    };
+
+    // Handle non-digit input, and make sure that the user doesn't blow their computer.
+    // Even 1000x1000 with 10000 mines is enough for firefox to use 8GB ram and still crash.
+    document.getElementById("width-settings-input").onblur = (ev) => onblur(ev, "width", 1000);
+    document.getElementById("height-settings-input").onblur = (ev) => onblur(ev, "height", 1000);
+    document.getElementById("bombs-settings-input" ).onblur = (ev) => onblur(ev, "mines", 10000);
+
     difficultyListChanged();
 }
 
