@@ -56,7 +56,7 @@ class Board {
 
         this.hasLost = false;
         this.hasStarted = false;
-        
+
         this.startTime = performance.now();
 
         this.checkedTiles = {};
@@ -346,22 +346,92 @@ function openSettings() {
     settingsAlert.style.display = "flex";
     gameOverAlert.style.display = "none";
 
-    document.getElementById(parseParameters().diff).selected = "selected";
+    var difficulty = parseParameters().diff;
+
+    document.getElementById(difficulty).selected = "selected";
+
+    var onblur = (ev, word, number) => {
+        if (!/^\d*$/.test(ev.target.value)) {
+            ev.target.value = "";
+            ev.target.placeholder = "Invalid input, please use digits only";
+        } else if (Number(ev.target.value) >= number) {
+            ev.target.value = "";
+            ev.target.placeholder = "Invalid input, the max " + word + " is: " + number;
+        }
+    };
+
+    // Handle non-digit input, and make sure that the user doesn't blow their computer.
+    // Even 1000x1000 with 10000 mines is enough for firefox to use 8GB ram and still crash.
+    document.getElementById("width-settings-input").onblur = (ev) => onblur(ev, "width", 1000);
+    document.getElementById("height-settings-input").onblur = (ev) => onblur(ev, "height", 1000);
+    document.getElementById("bombs-settings-input" ).onblur = (ev) => onblur(ev, "mines", 10000);
+
+    difficultyListChanged();
+}
+
+function difficultyListChanged() {
+    var difficulty = document.getElementById("diffs-list").value;
+    
+    if (difficulty != "custom") {
+        document.getElementById("width-settings-input").placeholder = "Width: " + Board.DEFAULT_BOARD[difficulty].width;
+        document.getElementById("width-settings-input").disabled = "disabled";
+    } else {
+        document.getElementById("width-settings-input").placeholder = "Insert new Width (Current: " + board.size.width + ")";
+        document.getElementById("width-settings-input").disabled = undefined;
+    }
+    
+    if (difficulty != "custom") {
+        document.getElementById("height-settings-input").placeholder = "Height: " + Board.DEFAULT_BOARD[difficulty].height;
+        document.getElementById("height-settings-input").disabled = "disabled";
+    } else {
+        document.getElementById("height-settings-input").placeholder = "Insert new Height (Current: " + board.size.height + ")";
+        document.getElementById("height-settings-input").disabled = undefined;
+    }
+    
+    if (difficulty != "custom") {
+        document.getElementById("bombs-settings-input").placeholder = "Bombs: " + Board.DEFAULT_BOARD[difficulty].bombs;
+        document.getElementById("bombs-settings-input").disabled = "disabled";
+    } else {
+        document.getElementById("bombs-settings-input").placeholder = "Insert new Bombs (Current: " + board.numberOfBombs + ")";
+        document.getElementById("bombs-settings-input").disabled = undefined;
+    }
 }
 
 function applySettingsChanges() {
     // Change the difficulty if it was changed
-    if (board.difficulty != document.getElementById('diffs-list').value) difficultyChange();
+    var width = document.getElementById("width-settings-input").value;
+    width = width == "" ? board.size.width : width;
+
+    var height = document.getElementById("height-settings-input").value;
+    height = height == "" ? board.size.height : height;
+
+    var bombs = document.getElementById("bombs-settings-input").value;
+    bombs = bombs == "" ? board.numberOfBombs : bombs;
+
+    if (board.difficulty != document.getElementById('diffs-list').value || (board.difficulty == "custom" && (width != board.size.width || height != board.size.height || bombs != board.numberOfBombs))) difficultyChange();
 
     // If the site hasn't reloaded yet, close this menu and open the game-over menu instead
     closeSettings();
 }
 
 function difficultyChange() {
-    var newValue = document.getElementById('diffs-list').value;
+    var difficulty = document.getElementById('diffs-list').value;
 
-    // Changes the location to this, and with that also changes the difficulty
-    location = location.pathname + "?diff=" + newValue;
+    // Changes the location, and with that also changes the difficulty
+    if (difficulty == "custom") {
+        var width = document.getElementById("width-settings-input").value;
+        width = width == "" ? board.size.width : width;
+
+        var height = document.getElementById("height-settings-input").value;
+        height = height == "" ? board.size.height : height;
+
+        var bombs = document.getElementById("bombs-settings-input").value;
+        bombs = bombs == "" ? board.numberOfBombs : bombs;
+
+        location = location.pathname + "?diff=" + difficulty + "&width=" + width + "&height=" + height + "&bombs=" + bombs;
+    } else {
+        location = location.pathname + "?diff=" + difficulty;
+    }
 }
 
 function closeSettings() {

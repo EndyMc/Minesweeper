@@ -57,6 +57,11 @@ center, img {
     margin: auto;
 }
 
+button {
+    cursor: pointer;
+    font-family: glory;
+}
+
 @font-face {
     font-family: glory;
     src: url(Glory.ttf);
@@ -122,10 +127,6 @@ center, img {
     font-weight: bold;
 }
 
-#settings-alert {
-    display: none;
-}
-
 #open-settings-container {
     width: 15%;
 
@@ -160,36 +161,20 @@ center, img {
     z-index: 2;
 }
 
-#info-panel {
-    --width: 90vmin;
-    --height: calc(var(--width) * (var(--board-height) / var(--board-width)) / 15);
-
-    position: absolute;
-    
-    width: var(--width);
-    height: var(--height);
-
-    left: calc((100vw - var(--width)) / 2);
-    top: calc((100vh - (calc(var(--width) * (var(--board-height) / var(--board-width))))) / 3);
-
-    border-top-left-radius: 1vmin;
-    border-top-right-radius: 1vmin;
-
-    background-color: #CDDAB0;
-}
-
 #settings {
+    --padding: 3%;
+
     display: grid;
     
-    max-height: calc(25vh - 3%);
-    width: 100%;
+    max-height: calc(25vh - var(--padding) * 2);
+    width: calc(100% - var(--padding) * 3);
     
     overflow-y: scroll;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     grid-auto-rows: 1.5em;
 
-    padding: 3%;
+    padding: var(--padding);
 }
 
 #settings-alert {
@@ -197,24 +182,31 @@ center, img {
     flex-wrap: wrap;
 }
 
-#apply-settings {
+#settings-alert>button {
     width: 45%;
     height: 5vh;
-
+    
     bottom: 0px;
-    right: 0px;
+    margin: 3%;
 
     position: absolute;
-    margin: 3%;
+
+    background-color: forestgreen;
+    border: none;
+
+    font-size: 2.5vh;
+
+    border-radius: 1vmin;
+}
+
+#apply-settings {
+    left: 0px;
+
+    color: lightgreen;
 }
 
 #cancel-settings {
-    width: 45%;
-    height: 5vh;
+    right: 0px;
 
-    bottom: 0px;
-    left: 0px;
-
-    position: absolute;
-    margin: 3%;
+    color: red;
 }
