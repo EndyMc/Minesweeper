@@ -32,7 +32,10 @@ board {
     left: calc((100vw - var(--width)) / 2);
     top: calc((100vh - var(--height)) / 2);
 
-    background-color: white;
+    background-color: #1F1F1F;
+
+    border-radius: 0.5%;
+    overflow: hidden;
 
     z-index: 0;
 }
@@ -48,8 +51,6 @@ tile {
 
     width: var(--width);
     height: var(--height);
-
-    border-radius: 2.5%;
 }
 
 center, img {
@@ -65,6 +66,22 @@ button {
 @font-face {
     font-family: glory;
     src: url(Glory.ttf);
+}
+
+#time-display-div {
+    width: 100vw;
+    height: 15vh;
+    
+    display: flex;
+    position: absolute;
+}
+
+#time-display {
+    margin: auto;
+    color: white;
+    
+    font-size: 5vh;
+    font-family: monospace;
 }
 
 #game-over-alert, #settings-alert {
@@ -167,7 +184,7 @@ button {
     display: grid;
     
     max-height: calc(25vh - var(--padding) * 2);
-    width: calc(100% - var(--padding) * 3);
+    width: calc(100% - var(--padding) * 2);
     
     overflow-y: scroll;
 

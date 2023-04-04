@@ -58,6 +58,15 @@ class Board {
         this.hasStarted = false;
 
         this.startTime = performance.now();
+        var clock = document.getElementById('time-display');
+
+        this.clockInterval = setInterval(() => {
+            var time = performance.now() - this.startTime;
+            var hours = "" + Math.floor(time / 1000 / 60 / 60);
+            var minutes = "" + Math.floor(time / 1000 / 60 % 60);
+            var seconds = "" + Math.floor(time / 1000 % 60);
+            clock.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+        }, 100);
 
         this.checkedTiles = {};
 
@@ -191,10 +200,28 @@ class Board {
 }
 
 function displayGameOver() {
-    document.getElementById('game-over-alert').style.display = "block";
-    document.getElementById('background-dim').style.display = "block";
+    var gameOverAlert = document.getElementById("game-over-alert");
+    var backgroundDim = document.getElementById("background-dim");
+
+    var timeTakenText = document.getElementById('time-taken');
+    var bestTimeText = document.getElementById('best-time');
+    var timeDisplay = document.getElementById("time-display");
+
+    gameOverAlert.style.display = "block";
+    backgroundDim.style.display = "block";
 
     var convertToTime = (timeInMilis) => timeInMilis == undefined || timeInMilis == null || timeInMilis == "-" ? "-" : (Math.floor(timeInMilis / (1000 * 60 * 60)) > 0 ? Math.floor(timeInMilis / (1000 * 60 * 60)) + "h, " : "") + (Math.floor(timeInMilis / (1000 * 60) % 60) > 0 ? Math.floor(timeInMilis / (1000 * 60) % 60) + "m, " : "") + Math.floor(timeInMilis / (1000) % 60) + "s";
+
+    { // Update the clock one last time, so that there isn't a mismatch between the time in the game-over menu and there
+        clearInterval(board.clockInterval);
+
+        var time = performance.now() - board.startTime;
+        var hours = "" + Math.floor(time / 1000 / 60 / 60);
+        var minutes = "" + Math.floor(time / 1000 / 60 % 60);
+        var seconds = "" + Math.floor(time / 1000 % 60);
+
+        timeDisplay.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+    }
 
     if (localStorage.getItem('best-time') == null) {
         localStorage.setItem('best-time', JSON.stringify({}));
@@ -209,12 +236,12 @@ function displayGameOver() {
             localStorage.setItem("best-time", JSON.stringify(bestTime));
         }
 
-        document.getElementById('time-taken').innerText = "Time taken: " + convertToTime(endTime - board.startTime);
+        timeTakenText.innerText = "Time taken: " + convertToTime(endTime - board.startTime);
     } else {
-        document.getElementById('time-taken').innerText = "Time taken: -";
+        timeTakenText.innerText = "Time taken: -";
     }
 
-    document.getElementById('best-time').innerText = "Best time: " + convertToTime(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs]);
+    bestTimeText.innerText = "Best time: " + convertToTime(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs]);
 }
 
 function getNumberOfBombs(x, y, map = board.map) {
