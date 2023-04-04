@@ -224,24 +224,48 @@ function displayGameOver() {
     }
 
     if (localStorage.getItem('best-time') == null) {
+        // If it doesn't exist, set it to a json value so this doesn't break
         localStorage.setItem('best-time', JSON.stringify({}));
     }
-    
+
     var bestTime = JSON.parse(localStorage.getItem('best-time'));
+    var key = board.difficulty; //"width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs;
     if (!board.hasLost) {
         var endTime = performance.now();
 
-        if (bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs] == undefined || endTime - board.startTime < Number(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs])) {
-            bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs] = endTime - board.startTime;
+        if (board.difficulty != "custom") {
+            if (bestTime[key] == undefined) {
+                // Set this to an array
+                bestTime[key] = [];
+            } else if (typeof bestTime[key] != "object") {
+                // Parse old scores to this new format
+                var time = Number(bestTime[key]);
+                bestTime[key] = [ time ];
+            }
+            
+            bestTime[key].push(endTime - board.startTime);
+            bestTime[key].sort((a, b) => Number(a) - Number(b));
+            
+            while (bestTime[key].length > 10) {
+                // If there's more than 10 scores in here, remove the slowest ones so that the amount always is at 10
+                bestTime[key].pop();
+            }
+            
             localStorage.setItem("best-time", JSON.stringify(bestTime));
         }
-
+            
+        timeTakenText.style.color = "black";
         timeTakenText.innerText = "Time taken: " + convertToTime(endTime - board.startTime);
     } else {
-        timeTakenText.innerText = "Time taken: -";
+        timeTakenText.style.color = "red";
+        timeTakenText.innerText = "Failed";
     }
 
-    bestTimeText.innerText = "Best time: " + convertToTime(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs]);
+    if (board.difficulty == "custom") {
+        bestTimeText.innerText = "Unranked";
+    } else {
+        bestTimeText.innerText = "Best time: " + convertToTime(bestTime[key][0]);
+    }
 }
 
 function getNumberOfBombs(x, y, map = board.map) {
@@ -373,9 +397,7 @@ function openSettings() {
     settingsAlert.style.display = "flex";
     gameOverAlert.style.display = "none";
 
-    var difficulty = parseParameters().diff;
-
-    document.getElementById(difficulty).selected = "selected";
+    document.getElementById(board.difficulty).selected = "selected";
 
     var onblur = (ev, word, number) => {
         if (!/^\d*$/.test(ev.target.value)) {
