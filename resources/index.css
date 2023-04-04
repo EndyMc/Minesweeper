@@ -105,18 +105,65 @@ button {
     z-index: 5;
 }
 
-#game-over-text {
+.leaderboard-row {
+    --height: calc(100% / 11);
+    --index: 0;
+
+    position: absolute;
+    
+    width: 100%;
+    height: var(--height);
+
+    top: calc(var(--height) * var(--index));
+    left: 0px;
+}
+
+
+.leaderboard-index {
+    width: calc(25% - 1px);
+    height: calc(100% - 2px);
+    
+    position: absolute;
+    border: 1px solid whitesmoke;
+    border-left: 0px;
+
+    left: 0px;
+    top: 0px;
+}
+
+.leaderboard-time {
+    width: calc(75% - 1px);
+    height: calc(100% - 2px);
+
+    position: absolute;
+    border: 1px solid whitesmoke;
+    border-right: 0px;
+    
+    right: 0px;
+    top: 0px;
+}
+
+#game-over-leaderboard {
+    --width: calc(100%);
+    /* Full height - button height - button margin - top - border */
+    --height: calc(100% - 15% - 4% - 10% - 2px);
+
     position: absolute;
     
     line-break: normal;
     text-align: center;
-    display: inline-grid;
-    align-items: center;
+
+    display: block;
+
+    border-top: 1px solid whitesmoke;
+    border-bottom: 1px solid whitesmoke;
+
+    top: 10%;
+
+    width: var(--width);
+    height: var(--height);
     
-    width: 100%;
-    height: calc(100% - 15% - 5%);
-    
-    font-size: 1.25em;
+    font-size: 1.5vmin;
 }
 
 #game-over-retry-button {
@@ -147,10 +194,13 @@ button {
 #open-settings-container {
     width: 15%;
 
-    top: 1%;
-    right: 1%;
+    top: 0px;
+    right: 0px;
 
     position: absolute;
+    display: grid;
+
+    aspect-ratio: 1/1;
 }
 
 #retry-icon, #settings-icon {
@@ -160,11 +210,14 @@ button {
     max-width: var(--size);
 
     cursor: pointer;
+    margin: auto;
 }
 
 #settings-icon {
-    left: calc((100% - var(--size)) / 2);
-    top: calc((100% - var(--size)) / 2);
+    width: auto;
+    height: var(--size);
+
+    aspect-ratio: 1/1;
 }
 
 #background-dim {

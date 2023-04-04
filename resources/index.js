@@ -228,8 +228,33 @@ function displayGameOver() {
         localStorage.setItem('best-time', JSON.stringify({}));
     }
 
+    var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var bestTime = JSON.parse(localStorage.getItem('best-time'));
-    var key = board.difficulty; //"width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs;
+    var key = board.difficulty;
+
+    gameOverLeaderboard.innerHTML = "";
+
+    var newLeaderboardTime = (time, indexColor = "black", timeColor = "black") => {
+        var leaderboardRow = document.createElement("div");
+        var leaderboardIndex = document.createElement("div");
+        var leaderboardTime = document.createElement("div");
+
+        leaderboardRow.className = "leaderboard-row";
+        leaderboardIndex.className = "leaderboard-index";
+        leaderboardTime.className = "leaderboard-time";
+
+        leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
+        leaderboardIndex.style.color = indexColor;
+        leaderboardTime.style.color = timeColor;
+
+        leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
+        leaderboardTime.innerText = time;
+
+        gameOverLeaderboard.appendChild(leaderboardRow);
+        leaderboardRow.appendChild(leaderboardIndex);
+        leaderboardRow.appendChild(leaderboardTime);
+    };
+
     if (!board.hasLost) {
         var endTime = performance.now();
 
@@ -254,17 +279,20 @@ function displayGameOver() {
             localStorage.setItem("best-time", JSON.stringify(bestTime));
         }
             
-        timeTakenText.style.color = "black";
-        timeTakenText.innerText = "Time taken: " + convertToTime(endTime - board.startTime);
+        newLeaderboardTime(convertToTime(endTime - board.startTime))
     } else {
-        timeTakenText.style.color = "red";
-        timeTakenText.innerText = "Failed";
+        newLeaderboardTime("Failed", "black", "red");
     }
 
     if (board.difficulty == "custom") {
-        bestTimeText.innerText = "Unranked";
+        var elem = document.createElement("h2");
+        elem.innerText = "Unranked";
+        gameOverLeaderboard.appendChild(elem);
     } else {
-        bestTimeText.innerText = "Best time: " + convertToTime(bestTime[key][0]);
+        for (var i = 0; i < 10; i++) {
+            var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
+            newLeaderboardTime(convertToTime(bestTime[key]?.[i] == undefined ? "-" : bestTime[key][i]), color, color);
+        }
     }
 }
 
