@@ -166,6 +166,11 @@ button {
     font-size: 1.5vmin;
 }
 
+#game-over-header {
+    margin: auto;
+    font-size: 2vmin;
+}
+
 #game-over-retry-button {
     --width: 95%;
     --height: 15%;
