@@ -265,7 +265,10 @@ function displayGameOver() {
             } else if (typeof bestTime[key] != "object") {
                 // Parse old scores to this new format
                 var time = Number(bestTime[key]);
-                bestTime[key] = [ time ];
+                bestTime[key] = [];
+                if (!isNaN(time)) {
+                    bestTime[key].push(time);
+                }
             }
             
             bestTime[key].push(endTime - board.startTime);
