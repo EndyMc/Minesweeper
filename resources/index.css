@@ -32,7 +32,10 @@ board {
     left: calc((100vw - var(--width)) / 2);
     top: calc((100vh - var(--height)) / 2);
 
-    background-color: white;
+    background-color: #1F1F1F;
+
+    border-radius: 0.5%;
+    overflow: hidden;
 
     z-index: 0;
 }
@@ -48,8 +51,6 @@ tile {
 
     width: var(--width);
     height: var(--height);
-
-    border-radius: 2.5%;
 }
 
 center, img {
@@ -65,6 +66,25 @@ button {
 @font-face {
     font-family: glory;
     src: url(Glory.ttf);
+}
+
+#time-display-div {
+    width: min-content;
+    height: 3vh;
+
+    left: calc((100vw - 90vmin) / 2);
+    top: calc((100vh - calc(90vmin * (var(--board-height) / var(--board-width)))) / 2 - 3.5vh);
+
+    display: flex;
+    position: absolute;
+}
+
+#time-display {
+    margin: auto;
+    color: white;
+    
+    font-size: 3vh;
+    font-family: monospace;
 }
 
 #game-over-alert, #settings-alert {
@@ -88,18 +108,88 @@ button {
     z-index: 5;
 }
 
-#game-over-text {
+.leaderboard-row {
+    --height: calc(100% / 11);
+    --index: 0;
+
+    position: absolute;
+    
+    width: 100%;
+    height: var(--height);
+
+    top: calc(var(--height) * var(--index));
+    left: 0px;
+}
+
+
+.leaderboard-index {
+    width: calc(25% - 1px);
+    height: calc(100% - 2px);
+    
+    position: absolute;
+    border: 1px solid whitesmoke;
+    border-left: 0px;
+
+    left: 0px;
+    top: 0px;
+}
+
+.leaderboard-time {
+    width: calc(75% - 1px);
+    height: calc(100% - 2px);
+
+    position: absolute;
+    border: 1px solid whitesmoke;
+    border-right: 0px;
+    
+    right: 0px;
+    top: 0px;
+}
+
+#game-over-leaderboard {
+    --width: calc(100%);
+    /* Full height - button height - button margin - top - border */
+    --height: calc(100% - 15% - 4% - 10% - 2px);
+
     position: absolute;
     
     line-break: normal;
     text-align: center;
-    display: inline-grid;
-    align-items: center;
+
+    display: block;
+
+    border-top: 1px solid whitesmoke;
+    border-bottom: 1px solid whitesmoke;
+
+    top: 10%;
+
+    width: var(--width);
+    height: var(--height);
     
-    width: 100%;
-    height: calc(100% - 15% - 5%);
-    
-    font-size: 1.25em;
+    font-size: 1.5vmin;
+}
+
+#flag-counter {
+    color: white;
+
+    font-size: 3vh;
+    font-family: monospace;
+
+    display: grid;
+    position: absolute;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    width: min-content;
+    height: 3vh;
+
+    right: calc((100vw - 90vmin) / 2);
+    top: calc((100vh - calc(90vmin * (var(--board-height) / var(--board-width)))) / 2 - 3.5vh);
+}
+
+#game-over-header {
+    margin: auto;
+    font-size: 2vmin;
 }
 
 #game-over-retry-button {
@@ -130,10 +220,13 @@ button {
 #open-settings-container {
     width: 15%;
 
-    top: 1%;
-    right: 1%;
+    top: 0px;
+    right: 0px;
 
     position: absolute;
+    display: grid;
+
+    aspect-ratio: 1/1;
 }
 
 #retry-icon, #settings-icon {
@@ -143,11 +236,14 @@ button {
     max-width: var(--size);
 
     cursor: pointer;
+    margin: auto;
 }
 
 #settings-icon {
-    left: calc((100% - var(--size)) / 2);
-    top: calc((100% - var(--size)) / 2);
+    width: auto;
+    height: var(--size);
+
+    aspect-ratio: 1/1;
 }
 
 #background-dim {
@@ -167,7 +263,7 @@ button {
     display: grid;
     
     max-height: calc(25vh - var(--padding) * 2);
-    width: calc(100% - var(--padding) * 3);
+    width: calc(100% - var(--padding) * 2);
     
     overflow-y: scroll;
 

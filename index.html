@@ -13,15 +13,22 @@
 
     </head>
     <body onload="init()">
+        <div id="time-display-div">
+            <center id="time-display">00:00:00</center>
+        </div>
+        <div id="flag-counter">
+            <span style="margin: auto;" id="flag-counter-text">0/40</span>
+            <img src="images/flag.png" style="height: 3vh; width: auto; aspect-ratio: 1/1; margin: auto; " >
+        </div>
         <board></board>
 
         <div id="background-dim"></div>
 
         <div id="game-over-alert">
-            <span id="game-over-text">
-                <span id="time-taken"></span>
-                <span id="best-time"></span>
-            </span>
+            <div style="height:10%; width: 100%; display: grid;">
+                <h2 id="game-over-header">Easy</h2>
+            </div>
+            <div id="game-over-leaderboard"></div>
 
             <div id="open-settings-container" onclick="openSettings();">
                 <img id="settings-icon" src="images/settings.png">

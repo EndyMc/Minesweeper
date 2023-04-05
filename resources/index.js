@@ -54,10 +54,21 @@ class Board {
 
         this.numberOfPlacedFlags = 0;
 
+        document.getElementById('flag-counter-text').innerText =  this.numberOfPlacedFlags + "/" + this.numberOfBombs;
+
         this.hasLost = false;
         this.hasStarted = false;
 
         this.startTime = performance.now();
+        var clock = document.getElementById('time-display');
+
+        this.clockInterval = setInterval(() => {
+            var time = performance.now() - this.startTime;
+            var hours = "" + Math.floor(time / 1000 / 60 / 60);
+            var minutes = "" + Math.floor(time / 1000 / 60 % 60);
+            var seconds = "" + Math.floor(time / 1000 % 60);
+            clock.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+        }, 100);
 
         this.checkedTiles = {};
 
@@ -191,30 +202,126 @@ class Board {
 }
 
 function displayGameOver() {
-    document.getElementById('game-over-alert').style.display = "block";
-    document.getElementById('background-dim').style.display = "block";
+    var gameOverAlert = document.getElementById("game-over-alert");
+    var backgroundDim = document.getElementById("background-dim");
 
-    var convertToTime = (timeInMilis) => timeInMilis == undefined || timeInMilis == null || timeInMilis == "-" ? "-" : (Math.floor(timeInMilis / (1000 * 60 * 60)) > 0 ? Math.floor(timeInMilis / (1000 * 60 * 60)) + "h, " : "") + (Math.floor(timeInMilis / (1000 * 60) % 60) > 0 ? Math.floor(timeInMilis / (1000 * 60) % 60) + "m, " : "") + Math.floor(timeInMilis / (1000) % 60) + "s";
+    var gameOverHeader = document.getElementById('game-over-header');
+    var timeDisplay = document.getElementById("time-display");
+
+    gameOverAlert.style.display = "block";
+    backgroundDim.style.display = "block";
+
+    // Since this string is all in lowercase, this is needed for the first letter to be in uppercase
+    gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1);
+
+    var convertToTime = (timeInMilis) => {
+        if (timeInMilis == undefined || timeInMilis == null || timeInMilis == "-") return "-";
+        
+        var hours = Math.floor(timeInMilis / (1000 * 60 * 60));
+        var minutes = Math.floor(timeInMilis / (1000 * 60) % 60);
+        var seconds = Math.floor(timeInMilis / (1000) % 60);
+        var milliseconds = String(Math.floor(timeInMilis % 1000));
+
+        while (milliseconds.length < 3) {
+            milliseconds = "0" + milliseconds;
+        }
+
+        return (hours > 0 ? hours + "h, " : "") + (minutes > 0 ? minutes + "m, " : "") + seconds + "s" + (timeInMilis > 60 * 1000 ? "" : " " + milliseconds + "ms");
+    };
+
+    { // Update the clock one last time, so that there isn't a mismatch between the time in the game-over menu and there
+        clearInterval(board.clockInterval);
+
+        var time = performance.now() - board.startTime;
+        var hours = "" + Math.floor(time / 1000 / 60 / 60);
+        var minutes = "" + Math.floor(time / 1000 / 60 % 60);
+        var seconds = "" + Math.floor(time / 1000 % 60);
+
+        timeDisplay.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+    }
 
     if (localStorage.getItem('best-time') == null) {
+        // If it doesn't exist, set it to a json value so this doesn't break
         localStorage.setItem('best-time', JSON.stringify({}));
     }
-    
+
+    var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var bestTime = JSON.parse(localStorage.getItem('best-time'));
+    var key = board.difficulty;
+
+    gameOverLeaderboard.innerHTML = "";
+
+    var newLeaderboardTime = (date = new Date().getTime(), time, indexColor = "black", timeColor = "black") => {
+        var leaderboardRow = document.createElement("div");
+        var leaderboardIndex = document.createElement("div");
+        var leaderboardTime = document.createElement("div");
+
+        leaderboardRow.className = "leaderboard-row";
+        leaderboardIndex.className = "leaderboard-index";
+        leaderboardTime.className = "leaderboard-time";
+
+        leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
+        leaderboardIndex.style.color = indexColor;
+        leaderboardTime.style.color = timeColor;
+
+        leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
+        leaderboardTime.innerText = time;
+
+        gameOverLeaderboard.appendChild(leaderboardRow);
+        leaderboardRow.appendChild(leaderboardIndex);
+        leaderboardRow.appendChild(leaderboardTime);
+    };
+
     if (!board.hasLost) {
         var endTime = performance.now();
 
-        if (bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs] == undefined || endTime - board.startTime < Number(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs])) {
-            bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs] = endTime - board.startTime;
+        if (board.difficulty != "custom") {
+            if (bestTime[key] == undefined) {
+                // Set this to an array
+                bestTime[key] = [];
+            } else if (typeof bestTime[key] != "object") {
+                // Parse old scores to this new format
+                var time = Number(bestTime[key]);
+                bestTime[key] = [];
+                if (!isNaN(time)) {
+                    bestTime[key].push({
+                        date: new Date().getTime(),
+                        time
+                    });
+                }
+            }
+            
+            bestTime[key].push({
+                date: new Date().getTime(),
+                time: endTime - board.startTime
+            });
+
+            bestTime[key].sort((a, b) => Number(a.time) - Number(b.time));
+            
+            const MAX_STORED_SCORES = 30;
+            while (bestTime[key].length > MAX_STORED_SCORES) {
+                bestTime[key].pop();
+            }
+            
             localStorage.setItem("best-time", JSON.stringify(bestTime));
         }
-
-        document.getElementById('time-taken').innerText = "Time taken: " + convertToTime(endTime - board.startTime);
+            
+        newLeaderboardTime(undefined, convertToTime(endTime - board.startTime));
     } else {
-        document.getElementById('time-taken').innerText = "Time taken: -";
+        newLeaderboardTime(undefined, "Failed", "black", "red");
     }
 
-    document.getElementById('best-time').innerText = "Best time: " + convertToTime(bestTime["width: " + board.size.width + ", height: " + board.size.height + ", bombs: " + board.numberOfBombs]);
+    if (board.difficulty == "custom") {
+        var elem = document.createElement("h2");
+        elem.innerText = "Unranked";
+        gameOverLeaderboard.appendChild(elem);
+    } else {
+        const MAX_SHOWN_SCORES = 10;
+        for (var i = 0; i < MAX_SHOWN_SCORES; i++) {
+            var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
+            newLeaderboardTime(bestTime[key]?.[i]?.date, convertToTime(bestTime[key]?.[i]?.time), color, color);
+        }
+    }
 }
 
 function getNumberOfBombs(x, y, map = board.map) {
@@ -302,6 +409,8 @@ class Tile {
                 board.numberOfPlacedFlags--;
             }
 
+            document.getElementById('flag-counter-text').innerText =  board.numberOfPlacedFlags + "/" + board.numberOfBombs;
+
             return false;
         }
 
@@ -346,9 +455,7 @@ function openSettings() {
     settingsAlert.style.display = "flex";
     gameOverAlert.style.display = "none";
 
-    var difficulty = parseParameters().diff;
-
-    document.getElementById(difficulty).selected = "selected";
+    document.getElementById(board.difficulty).selected = "selected";
 
     var onblur = (ev, word, number) => {
         if (!/^\d*$/.test(ev.target.value)) {
