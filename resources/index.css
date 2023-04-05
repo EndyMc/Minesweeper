@@ -69,9 +69,12 @@ button {
 }
 
 #time-display-div {
-    width: 100vw;
-    height: 15vh;
-    
+    width: min-content;
+    height: 3vh;
+
+    left: calc((100vw - 90vmin) / 2);
+    top: calc((100vh - calc(90vmin * (var(--board-height) / var(--board-width)))) / 2 - 3.5vh);
+
     display: flex;
     position: absolute;
 }
@@ -80,7 +83,7 @@ button {
     margin: auto;
     color: white;
     
-    font-size: 5vh;
+    font-size: 3vh;
     font-family: monospace;
 }
 
@@ -164,6 +167,24 @@ button {
     height: var(--height);
     
     font-size: 1.5vmin;
+}
+
+#flag-counter {
+    color: white;
+
+    font-size: 3vh;
+    font-family: monospace;
+
+    display: grid;
+    position: absolute;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    width: min-content;
+    height: 3vh;
+
+    right: calc((100vw - 90vmin) / 2);
+    top: calc((100vh - calc(90vmin * (var(--board-height) / var(--board-width)))) / 2 - 3.5vh);
 }
 
 #game-over-header {

@@ -54,6 +54,8 @@ class Board {
 
         this.numberOfPlacedFlags = 0;
 
+        document.getElementById('flag-counter-text').innerText =  this.numberOfPlacedFlags + "/" + this.numberOfBombs;
+
         this.hasLost = false;
         this.hasStarted = false;
 
@@ -249,7 +251,7 @@ function displayGameOver() {
 
     gameOverLeaderboard.innerHTML = "";
 
-    var newLeaderboardTime = (time, indexColor = "black", timeColor = "black") => {
+    var newLeaderboardTime = (date = new Date().getTime(), time, indexColor = "black", timeColor = "black") => {
         var leaderboardRow = document.createElement("div");
         var leaderboardIndex = document.createElement("div");
         var leaderboardTime = document.createElement("div");
@@ -282,12 +284,19 @@ function displayGameOver() {
                 var time = Number(bestTime[key]);
                 bestTime[key] = [];
                 if (!isNaN(time)) {
-                    bestTime[key].push(time);
+                    bestTime[key].push({
+                        date: new Date().getTime(),
+                        time
+                    });
                 }
             }
             
-            bestTime[key].push(endTime - board.startTime);
-            bestTime[key].sort((a, b) => Number(a) - Number(b));
+            bestTime[key].push({
+                date: new Date().getTime(),
+                time: endTime - board.startTime
+            });
+
+            bestTime[key].sort((a, b) => Number(a.time) - Number(b.time));
             
             const MAX_STORED_SCORES = 30;
             while (bestTime[key].length > MAX_STORED_SCORES) {
@@ -297,9 +306,9 @@ function displayGameOver() {
             localStorage.setItem("best-time", JSON.stringify(bestTime));
         }
             
-        newLeaderboardTime(convertToTime(endTime - board.startTime));
+        newLeaderboardTime(undefined, convertToTime(endTime - board.startTime));
     } else {
-        newLeaderboardTime("Failed", "black", "red");
+        newLeaderboardTime(undefined, "Failed", "black", "red");
     }
 
     if (board.difficulty == "custom") {
@@ -310,7 +319,7 @@ function displayGameOver() {
         const MAX_SHOWN_SCORES = 10;
         for (var i = 0; i < MAX_SHOWN_SCORES; i++) {
             var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
-            newLeaderboardTime(convertToTime(bestTime[key]?.[i]), color, color);
+            newLeaderboardTime(bestTime[key]?.[i]?.date, convertToTime(bestTime[key]?.[i]?.time), color, color);
         }
     }
 }
@@ -399,6 +408,8 @@ class Tile {
 
                 board.numberOfPlacedFlags--;
             }
+
+            document.getElementById('flag-counter-text').innerText =  board.numberOfPlacedFlags + "/" + board.numberOfBombs;
 
             return false;
         }
