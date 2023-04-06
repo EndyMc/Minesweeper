@@ -164,7 +164,7 @@ class Board {
                 board.visualizeWholeMap();
             }
         } else if (tile.numberOfBombs != 0) {
-            tile.sprite.innerHTML = "<center style='color: " + (tile.numberOfBombs == 1 ? "green" : tile.numberOfBombs == 2 ? "aqua" : tile.numberOfBombs == 3 ? "orange" : "coral") + ";'>" + tile.numberOfBombs + "</center>";
+            tile.sprite.innerHTML = "<div style='color: " + (tile.numberOfBombs == 1 ? "green" : tile.numberOfBombs == 2 ? "aqua" : tile.numberOfBombs == 3 ? "orange" : "coral") + ";'>" + tile.numberOfBombs + "</div>";
         } else {
             // Check cardinal directions
             if (this.checkedTiles[(x - 1) + ", " + (y)] == undefined && x - 1 >= 0) { this.checkedTiles[(x - 1) + ", " + (y)] = this.map[x - 1][y].numberOfBombs; this.visualizeMapAt(x - 1, y); }

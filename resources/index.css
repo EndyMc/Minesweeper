@@ -51,6 +51,13 @@ tile {
 
     width: var(--width);
     height: var(--height);
+
+    container-type: size;
+}
+
+tile>div {
+    font-size: 20cqmin;
+    margin: auto;
 }
 
 center, img {
