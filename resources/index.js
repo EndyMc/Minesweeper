@@ -193,15 +193,9 @@ class Board {
                 }
             }
         }
-
-        displayGameOver();
     }
 }
 
-/**
- * This method seems to get called like 500 times when the game is over...
- * Need to look into it further
- */
 function displayGameOver() {
     var gameOverAlert = document.getElementById("game-over-alert");
     var backgroundDim = document.getElementById("background-dim");
