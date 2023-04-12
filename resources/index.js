@@ -65,6 +65,7 @@ class Board {
         document.getElementById('flag-counter-text').innerText =  this.numberOfPlacedFlags + "/" + this.numberOfBombs;
 
         this.hasLost = false;
+        this.hasWon = false;
         this.hasStarted = false;
 
         this.checkedTiles = {};
@@ -156,7 +157,7 @@ class Board {
         if (tile.isBomb) {
             tile.sprite.innerHTML = "<img src='images/mine.png' alt='M' style='color: red; width: 50%; height: 50%;'></img>";
 
-            if (!this.hasLost) {
+            if (!this.hasWon && !this.hasLost) {
                 this.hasLost = true;
                 board.visualizeWholeMap();
             }
@@ -184,7 +185,7 @@ class Board {
         
         tile.sprite.style.backgroundColor = tile.sprite.style.backgroundColor == "rgb(0, 192, 192)" || tile.sprite.style.backgroundColor == "rgb(255, 255, 255)" ? "#FFFFFF" : "#F0F0F0";
 
-        if (!this.hasLost) {
+        if (!this.hasWon && !this.hasLost) {
             for (var x = 0; x < this.size.width; x++) {
                 for (var y = 0; y < this.size.height; y++) {
                     if (!this.map[x][y].isVisualized && !this.map[x][y].isBomb) {
@@ -192,6 +193,8 @@ class Board {
                     }
                 }
             }
+            this.hasWon = true;
+            this.visualizeWholeMap();
         }
     }
 }
