@@ -30,7 +30,7 @@
             </div>
             <div id="game-over-leaderboard"></div>
 
-            <div id="open-settings-container" onclick="openSettings();">
+            <div id="open-settings-container" onclick="Settings.menu.open();">
                 <img id="settings-icon" src="images/settings.png">
             </div>
             
@@ -52,13 +52,22 @@
                 <input id="width-settings-input">
                 <input id="height-settings-input">
                 <input id="bombs-settings-input">
+
+                <br>
+                <label for="font-list">Text scale:</label>
+                <select name="fonts" id="font-list">
+                    <option value="small" id="font-small">Small</option>
+                    <option value="normal" id="font-normal" selected>Normal</option>
+                    <option value="large" id="font-large">Large</option>
+                    <option value="extra-large" id="font-extra-large">Extra Large</option>
+                </select>
             </div>
 
             <!-- Used to cancel any and all changes made since entering this view -->
-            <button id="cancel-settings" onclick="closeSettings();">✗</button>
+            <button id="cancel-settings" onclick="Settings.menu.close();">✗</button>
 
             <!-- Used to apply all changes -->
-            <button id="apply-settings" onclick="applySettingsChanges();">✓</button>
+            <button id="apply-settings" onclick="Settings.apply();">✓</button>
         </div>
     </body>
 </html>

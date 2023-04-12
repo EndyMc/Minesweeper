@@ -23,6 +23,7 @@ body {
 board {
     --width: 90vmin;
     --height: calc(var(--width) * (var(--board-height) / var(--board-width)));
+    --font-size: 20cqmin; 
 
     position: absolute;
 
@@ -56,7 +57,7 @@ tile {
 }
 
 tile>div {
-    font-size: 20cqmin;
+    font-size: var(--font-size);
     margin: auto;
 }
 

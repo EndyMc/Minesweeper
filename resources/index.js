@@ -26,18 +26,28 @@ class Board {
 
     constructor(difficulty = Board.DEFAULT_DIFFICULTY) {
         if (difficulty == "custom") {
-            var parameters = parseParameters();
+            var settings = Settings.get().difficulty;
 
             this.size = {
-                width: Number(parameters.width),
-                height: Number(parameters.height)
+                width: Number(settings.width),
+                height: Number(settings.height)
             }
 
-            if (parameters.width == undefined || parameters.height == undefined) {
-                location = location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+            if (settings.width == undefined || settings.height == undefined) {
+                Settings.save({
+                    difficulty: {
+                        name: Board.DEFAULT_DIFFICULTY,
+
+                        width: settings.width || Board.DEFAULT_BOARD[Board.DEFAULT_DIFFICULTY].width,
+                        height: settings.height || Board.DEFAULT_BOARD[Board.DEFAULT_DIFFICULTY].height,
+
+                        bombs: settings.bombs || Board.DEFAULT_BOARD[Board.DEFAULT_DIFFICULTY].bombs
+                    }
+                });
+                location.reload();
             }
 
-            this.numberOfBombs = parameters.bombs == undefined ? Math.ceil(this.size.width * this.size.height / 5) : Number(parameters.bombs);
+            this.numberOfBombs = settings.bombs == undefined ? Math.ceil(this.size.width * this.size.height / 5) : Number(settings.bombs);
         } else if (/^(easy|medium|hard)$/.test(difficulty)) {
             this.size = {
                 width: Board.DEFAULT_BOARD[difficulty].width,
@@ -45,8 +55,6 @@ class Board {
             };
             
             this.numberOfBombs = Board.DEFAULT_BOARD[difficulty].bombs;
-        } else {
-            location = location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
         }
         
         this.difficulty = difficulty;
@@ -58,17 +66,6 @@ class Board {
 
         this.hasLost = false;
         this.hasStarted = false;
-
-        this.startTime = performance.now();
-        var clock = document.getElementById('time-display');
-
-        this.clockInterval = setInterval(() => {
-            var time = performance.now() - this.startTime;
-            var hours = "" + Math.floor(time / 1000 / 60 / 60);
-            var minutes = "" + Math.floor(time / 1000 / 60 % 60);
-            var seconds = "" + Math.floor(time / 1000 % 60);
-            clock.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
-        }, 100);
 
         this.checkedTiles = {};
 
@@ -201,6 +198,10 @@ class Board {
     }
 }
 
+/**
+ * This method seems to get called like 500 times when the game is over...
+ * Need to look into it further
+ */
 function displayGameOver() {
     var gameOverAlert = document.getElementById("game-over-alert");
     var backgroundDim = document.getElementById("background-dim");
@@ -384,13 +385,25 @@ class Tile {
                 
                 // Remove all listed tiles which are offscreen, as to not break anything
                 tilesToExclude.filter((value) => value.x >= 0 && value.x < board.size.width && value.y >= 0 && value.y < board.size.height);
+
                 
                 // Generate a new board with the condition that these tiles aren't bombs
                 board.map = board.createMap(tilesToExclude);
-                board.visualizeMapAt(this.position.x, this.position.y);
-            } else {
-                board.visualizeMapAt(this.position.x, this.position.y);
+
+                // Start the timer
+                board.startTime = performance.now();
+                var clock = document.getElementById('time-display');
+        
+                board.clockInterval = setInterval(() => {
+                    var time = performance.now() - board.startTime;
+                    var hours = "" + Math.floor(time / 1000 / 60 / 60);
+                    var minutes = "" + Math.floor(time / 1000 / 60 % 60);
+                    var seconds = "" + Math.floor(time / 1000 % 60);
+                    clock.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+                }, 100);
             }
+            
+            board.visualizeMapAt(this.position.x, this.position.y);                
         }
 
         sprite.oncontextmenu = (ev) => {
@@ -431,23 +444,6 @@ class NumberTile extends Tile {
     }
 }
 
-function parseParameters() {
-    var parameters = {};
-
-    if (location.href.replace(/[^\?]/g, "").length == 1) {
-        location.href
-            .split("?")[1]
-            .split("&")
-                .forEach((parameter) => {
-                    if (parameter.replace(/[^=]/g, "").length == 1) {
-                        parameters[parameter.split("=")[0]] = parameter.split("=")[1];
-                    }
-                });
-    }
-
-    return parameters;
-}
-
 function openSettings() {
     var settingsAlert = document.getElementById('settings-alert');
     var gameOverAlert = document.getElementById('game-over-alert');
@@ -458,10 +454,12 @@ function openSettings() {
     document.getElementById(board.difficulty).selected = "selected";
 
     var onblur = (ev, word, number) => {
+        if (ev.target.value == "") return;
+
         if (!/^\d*$/.test(ev.target.value)) {
             ev.target.value = "";
             ev.target.placeholder = "Invalid input, please use digits only";
-        } else if (Number(ev.target.value) >= number) {
+        } else if (Number(ev.target.value) >= number || Number(ev.target.value) <= 0) {
             ev.target.value = "";
             ev.target.placeholder = "Invalid input, the max " + word + " is: " + number;
         }
@@ -504,60 +502,128 @@ function difficultyListChanged() {
     }
 }
 
-function applySettingsChanges() {
-    // Change the difficulty if it was changed
-    var width = document.getElementById("width-settings-input").value;
-    width = width == "" ? board.size.width : width;
-
-    var height = document.getElementById("height-settings-input").value;
-    height = height == "" ? board.size.height : height;
-
-    var bombs = document.getElementById("bombs-settings-input").value;
-    bombs = bombs == "" ? board.numberOfBombs : bombs;
-
-    if (board.difficulty != document.getElementById('diffs-list').value || (board.difficulty == "custom" && (width != board.size.width || height != board.size.height || bombs != board.numberOfBombs))) difficultyChange();
-
-    // If the site hasn't reloaded yet, close this menu and open the game-over menu instead
-    closeSettings();
-}
-
-function difficultyChange() {
-    var difficulty = document.getElementById('diffs-list').value;
-
-    // Changes the location, and with that also changes the difficulty
-    if (difficulty == "custom") {
-        var width = document.getElementById("width-settings-input").value;
-        width = width == "" ? board.size.width : width;
-
-        var height = document.getElementById("height-settings-input").value;
-        height = height == "" ? board.size.height : height;
-
-        var bombs = document.getElementById("bombs-settings-input").value;
-        bombs = bombs == "" ? board.numberOfBombs : bombs;
-
-        location = location.pathname + "?diff=" + difficulty + "&width=" + width + "&height=" + height + "&bombs=" + bombs;
-    } else {
-        location = location.pathname + "?diff=" + difficulty;
-    }
-}
-
 function closeSettings() {
     var settingsAlert = document.getElementById('settings-alert');
     var gameOverAlert = document.getElementById('game-over-alert');
 
     settingsAlert.style.display = "none";
     gameOverAlert.style.display = "block";
+
+    // Clear the fields on these inputs
+    document.getElementById("width-settings-input").value = "";
+    document.getElementById("height-settings-input").value = "";
+    document.getElementById("bombs-settings-input").value = "";
 }
 
 function init() {
-    var diff = parseParameters().diff;
+    var diff = Settings.get()?.difficulty?.name;
 
-    if (diff == undefined) location = location.pathname + "?diff=" + Board.DEFAULT_DIFFICULTY;
+    if (diff == undefined) {
+        Settings.save({
+            difficulty: {
+                name: Board.DEFAULT_DIFFICULTY
+            }
+        });
 
-    document.getElementsByTagName('board')[0].innerHTML = "";
+        location.reload();
+    }
+
+    document.querySelector('board').innerHTML = "";
 
     document.getElementById('game-over-alert').style.display = "none";
     document.getElementById('background-dim').style.display = "none";
 
+    Settings.load();
+
     window.board = new Board(diff);
+}
+
+class Settings {
+    static accessibility = {
+        "small": "15cqmin",
+        "normal": "25cqmin",
+        "large": "35cqmin",
+        "extra-large": "50cqmin"
+    }
+
+    /**
+     * 
+     * @param  {object} changes The changes to made to the settings, in (key: value) pairs
+     */
+    static save(changes) {
+        // Fetch from localstorage
+        var settings = Settings.get();
+
+        // Set changes
+        Object.entries(changes).forEach((change) => settings[change[0]] = change[1]);
+
+        // Save to localstorage
+        localStorage.setItem("settings", JSON.stringify(settings));
+    }
+
+    /**
+     * @returns The currently applied settings
+     */
+    static get() {
+        var settings = {};
+        if (localStorage.getItem("settings") != null) {
+            settings = JSON.parse(localStorage.getItem("settings"));
+        }
+
+        return settings;
+    }
+
+    static apply() {
+        var changes = {};
+
+        // Change the font-size
+        var fontSize = document.getElementById('font-list').value;
+//        document.querySelector("board").style.setProperty("--font-size", Settings.accessibility[fontSize] || "1em");
+
+        changes["fontSize"] = fontSize;
+                
+        // Change the difficulty if it was changed
+        var width = document.getElementById("width-settings-input").value;
+        width = width == "" ? board.size.width : width;
+        
+        var height = document.getElementById("height-settings-input").value;
+        height = height == "" ? board.size.height : height;
+        
+        var bombs = document.getElementById("bombs-settings-input").value;
+        bombs = bombs == "" ? board.numberOfBombs : bombs;
+        
+        if (board.difficulty != document.getElementById('diffs-list').value || (board.difficulty == "custom" && (width != board.size.width || height != board.size.height || bombs != board.numberOfBombs))) {
+            changes["difficulty"] = {
+                "name": document.getElementById('diffs-list').value,
+                width,
+                height,
+                bombs
+            };
+        }
+        
+        Settings.save(changes);
+
+        if (changes.difficulty != undefined) {
+            // Simplest way for everything to be reset for the next run
+            location.reload();
+        }
+
+        // If the site hasn't reloaded yet, close this menu and open the game-over menu instead
+        Settings.load();
+        Settings.menu.close();
+    }
+
+    static load() {
+        var settings = Settings.get();
+
+        // Change the font-size
+        var fontSize = settings.fontSize || "normal";
+        document.querySelector("board").style.setProperty("--font-size", Settings.accessibility[fontSize]);
+        document.getElementById("font-" + fontSize).selected = "selected";
+    }
+
+    static menu = {
+        open: openSettings,
+        close: closeSettings
+    }
 }
