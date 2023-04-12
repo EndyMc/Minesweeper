@@ -1,2 +1,5 @@
 # todo list
 todo
+
+# Worker files for backend handling of leaderboard and accounts
+/worker/
