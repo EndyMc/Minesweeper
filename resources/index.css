@@ -130,28 +130,42 @@ button {
 }
 
 
-.leaderboard-index {
-    width: calc(25% - 1px);
+.leaderboard-index, .leaderboard-name, .leaderboard-time {
     height: calc(100% - 2px);
     
     position: absolute;
     border: 1px solid whitesmoke;
-    border-left: 0px;
 
-    left: 0px;
+    display: grid;
+    align-content: center;
+
     top: 0px;
 }
 
-.leaderboard-time {
-    width: calc(75% - 1px);
-    height: calc(100% - 2px);
+.leaderboard-index {
+    width: calc(20% - 1px);
 
-    position: absolute;
-    border: 1px solid whitesmoke;
+    border-left: 0px;
+
+    left: 0px;
+}
+
+.leaderboard-time {
+    width: calc(80% - 1px);
+    
     border-right: 0px;
     
     right: 0px;
-    top: 0px;
+}
+
+.leaderboard-name {
+    width: calc(40% - 1px);
+    
+    left: 20%;
+}
+
+.leaderboard-name + .leaderboard-time {
+    width: calc(40% - 1px);
 }
 
 #game-over-leaderboard {

@@ -199,18 +199,21 @@ class Board {
     }
 }
 
-function newLeaderboardTime (date = new Date().getTime(), time, indexColor = "black", timeColor = "black") {
+function newLeaderboardTime (date = new Date().getTime(), username, time, indexColor = "black", timeColor = "black") {
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var leaderboardRow = document.createElement("div");
     var leaderboardIndex = document.createElement("div");
+    var leaderboardName = document.createElement("div");
     var leaderboardTime = document.createElement("div");
 
     leaderboardRow.className = "leaderboard-row";
     leaderboardIndex.className = "leaderboard-index";
+    leaderboardName.className = "leaderboard-name";
     leaderboardTime.className = "leaderboard-time";
 
     leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
     leaderboardIndex.style.color = indexColor;
+    leaderboardName.style.color = timeColor;
     leaderboardTime.style.color = timeColor;
 
     leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
@@ -218,21 +221,22 @@ function newLeaderboardTime (date = new Date().getTime(), time, indexColor = "bl
 
     gameOverLeaderboard.appendChild(leaderboardRow);
     leaderboardRow.appendChild(leaderboardIndex);
+
+    if (username != undefined) {
+        leaderboardName.innerText = username;
+        leaderboardRow.appendChild(leaderboardName);
+    }
+
     leaderboardRow.appendChild(leaderboardTime);
 }
 
 async function displayGameOver() {
     var gameOverAlert = document.getElementById("game-over-alert");
     var backgroundDim = document.getElementById("background-dim");
-
-    var gameOverHeader = document.getElementById('game-over-header');
     var timeDisplay = document.getElementById("time-display");
 
     gameOverAlert.style.display = "block";
     backgroundDim.style.display = "block";
-
-    // Since this string is all in lowercase, this is needed for the first letter to be in uppercase
-    gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1) + " (" + (window.showGlobalLeaderboard ? "Global" : "Local") + ")";
 
     window.convertToTime = (timeInMilis) => {
         if (timeInMilis == undefined || timeInMilis == null || timeInMilis == "-") return "-";
@@ -261,34 +265,37 @@ async function displayGameOver() {
     }
 
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
-    var bestTime = JSON.parse(localStorage.getItem('best-time'));
+    var bestTime = Leaderboard.local.get(board.difficulty);
     var key = board.difficulty;
 
     gameOverLeaderboard.innerHTML = "";
 
     if (!board.hasLost) {
         board.endTime = performance.now();
+        
+        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime));
 
         if (board.difficulty != "custom") {
-            if (bestTime[key] == undefined) {
+            if (bestTime == undefined) {
                 // Set this to an array
-                bestTime[key] = [];
-            } else if (typeof bestTime[key] != "object") {
+                bestTime = [];
+            } else if (typeof bestTime != "object") {
                 // Parse old scores to this new format
-                var time = Number(bestTime[key]);
-                bestTime[key] = [];
+                var time = Number(bestTime);
+                bestTime = [];
                 if (!isNaN(time)) {
                     Leaderboard.local.submit(time, board.difficulty);
                 }
             }
 
             Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
-            await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
-        }
 
-        newLeaderboardTime(undefined, convertToTime(board.endTime - board.startTime));
+            if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
+                await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+            }
+        }
     } else {
-        newLeaderboardTime(undefined, "Failed", "black", "red");
+        newLeaderboardTime(undefined, undefined, "Failed", "black", "red");
     }
 
     displayLeaderboard();
@@ -301,11 +308,13 @@ async function displayLeaderboard() {
     gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1) + " (" + (window.showGlobalLeaderboard ? "Global" : "Local") + ")";
     gameOverLeaderboard.innerHTML = '';
 
+    document.getElementById("change-leaderboard-icon").src = !window.showGlobalLeaderboard ? "images/local.png" : "images/globe.png";
+
     // Latest
     if (!board.hasLost) {
-        newLeaderboardTime(undefined, convertToTime(board.endTime - board.startTime));
+        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
     } else {
-        newLeaderboardTime(undefined, "Failed", "black", "red");
+        newLeaderboardTime(undefined, undefined, "Failed" + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""), "black", "red");
     }
 
     if (board.difficulty == "custom") {
@@ -317,7 +326,7 @@ async function displayLeaderboard() {
         var leaderboard = window.showGlobalLeaderboard ? (await Leaderboard.global.get(board.difficulty)) : Leaderboard.local.get(board.difficulty);
         for (var i = 0; i < MAX_SHOWN_SCORES; i++) {
             var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
-            newLeaderboardTime(leaderboard?.[i]?.date, convertToTime(leaderboard?.[i]?.time), color, color);
+            newLeaderboardTime(leaderboard?.[i]?.date, leaderboard?.[i]?.username || (window.showGlobalLeaderboard ? "-" : undefined), convertToTime(leaderboard?.[i]?.time), color, color);
         }
     }
 }
@@ -545,7 +554,7 @@ function openSettings() {
     label.innerText = "Login:";
 
     document.getElementById(board.difficulty).selected = "selected";
-    document.getElementById('login-username').value = Settings.get()?.login?.username;
+    document.getElementById('login-username').value = Settings.get()?.login?.username || "";
     document.getElementById('login-password').value = "";
 
     var onblur = (ev, word, number) => {
