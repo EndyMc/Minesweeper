@@ -65,6 +65,7 @@ class Board {
         document.getElementById('flag-counter-text').innerText =  this.numberOfPlacedFlags + "/" + this.numberOfBombs;
 
         this.hasLost = false;
+        this.hasWon = false;
         this.hasStarted = false;
 
         this.checkedTiles = {};
@@ -134,7 +135,7 @@ class Board {
 
                 tile.sprite.style.cursor = "default";
 
-                tile.sprite.onclick = () => {};
+                tile.sprite.onle = () => {};
                 tile.sprite.oncontextmenu = (ev) => { ev.preventDefault(); return false; };
 
             }
@@ -156,7 +157,7 @@ class Board {
         if (tile.isBomb) {
             tile.sprite.innerHTML = "<img src='images/mine.png' alt='M' style='color: red; width: 50%; height: 50%;'></img>";
 
-            if (!this.hasLost) {
+            if (!this.hasWon && !this.hasLost) {
                 this.hasLost = true;
                 board.visualizeWholeMap();
             }
@@ -178,13 +179,13 @@ class Board {
 
         tile.sprite.style.cursor = "default";
         
-        tile.sprite.onclick = () => {};
+        tile.sprite.onmousedown = () => {};
         tile.sprite.oncontextmenu = (ev) => { ev.preventDefault(); return false; };
         
         
         tile.sprite.style.backgroundColor = tile.sprite.style.backgroundColor == "rgb(0, 192, 192)" || tile.sprite.style.backgroundColor == "rgb(255, 255, 255)" ? "#FFFFFF" : "#F0F0F0";
 
-        if (!this.hasLost) {
+        if (!this.hasLost && !this.hasWon) {
             for (var x = 0; x < this.size.width; x++) {
                 for (var y = 0; y < this.size.height; y++) {
                     if (!this.map[x][y].isVisualized && !this.map[x][y].isBomb) {
@@ -192,11 +193,35 @@ class Board {
                     }
                 }
             }
+            this.hasWon = true;
+            this.visualizeWholeMap();
         }
     }
 }
 
-function displayGameOver() {
+function newLeaderboardTime (date = new Date().getTime(), time, indexColor = "black", timeColor = "black") {
+    var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
+    var leaderboardRow = document.createElement("div");
+    var leaderboardIndex = document.createElement("div");
+    var leaderboardTime = document.createElement("div");
+
+    leaderboardRow.className = "leaderboard-row";
+    leaderboardIndex.className = "leaderboard-index";
+    leaderboardTime.className = "leaderboard-time";
+
+    leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
+    leaderboardIndex.style.color = indexColor;
+    leaderboardTime.style.color = timeColor;
+
+    leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
+    leaderboardTime.innerText = time;
+
+    gameOverLeaderboard.appendChild(leaderboardRow);
+    leaderboardRow.appendChild(leaderboardIndex);
+    leaderboardRow.appendChild(leaderboardTime);
+}
+
+async function displayGameOver() {
     var gameOverAlert = document.getElementById("game-over-alert");
     var backgroundDim = document.getElementById("background-dim");
 
@@ -207,9 +232,9 @@ function displayGameOver() {
     backgroundDim.style.display = "block";
 
     // Since this string is all in lowercase, this is needed for the first letter to be in uppercase
-    gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1);
+    gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1) + " (" + (window.showGlobalLeaderboard ? "Global" : "Local") + ")";
 
-    var convertToTime = (timeInMilis) => {
+    window.convertToTime = (timeInMilis) => {
         if (timeInMilis == undefined || timeInMilis == null || timeInMilis == "-") return "-";
         
         var hours = Math.floor(timeInMilis / (1000 * 60 * 60));
@@ -235,40 +260,14 @@ function displayGameOver() {
         timeDisplay.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
     }
 
-    if (localStorage.getItem('best-time') == null) {
-        // If it doesn't exist, set it to a json value so this doesn't break
-        localStorage.setItem('best-time', JSON.stringify({}));
-    }
-
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var bestTime = JSON.parse(localStorage.getItem('best-time'));
     var key = board.difficulty;
 
     gameOverLeaderboard.innerHTML = "";
 
-    var newLeaderboardTime = (date = new Date().getTime(), time, indexColor = "black", timeColor = "black") => {
-        var leaderboardRow = document.createElement("div");
-        var leaderboardIndex = document.createElement("div");
-        var leaderboardTime = document.createElement("div");
-
-        leaderboardRow.className = "leaderboard-row";
-        leaderboardIndex.className = "leaderboard-index";
-        leaderboardTime.className = "leaderboard-time";
-
-        leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
-        leaderboardIndex.style.color = indexColor;
-        leaderboardTime.style.color = timeColor;
-
-        leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
-        leaderboardTime.innerText = time;
-
-        gameOverLeaderboard.appendChild(leaderboardRow);
-        leaderboardRow.appendChild(leaderboardIndex);
-        leaderboardRow.appendChild(leaderboardTime);
-    };
-
     if (!board.hasLost) {
-        var endTime = performance.now();
+        board.endTime = performance.now();
 
         if (board.difficulty != "custom") {
             if (bestTime[key] == undefined) {
@@ -279,29 +278,32 @@ function displayGameOver() {
                 var time = Number(bestTime[key]);
                 bestTime[key] = [];
                 if (!isNaN(time)) {
-                    bestTime[key].push({
-                        date: new Date().getTime(),
-                        time
-                    });
+                    Leaderboard.local.submit(time, board.difficulty);
                 }
             }
-            
-            bestTime[key].push({
-                date: new Date().getTime(),
-                time: endTime - board.startTime
-            });
 
-            bestTime[key].sort((a, b) => Number(a.time) - Number(b.time));
-            
-            const MAX_STORED_SCORES = 30;
-            while (bestTime[key].length > MAX_STORED_SCORES) {
-                bestTime[key].pop();
-            }
-            
-            localStorage.setItem("best-time", JSON.stringify(bestTime));
+            Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
+            await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
         }
-            
-        newLeaderboardTime(undefined, convertToTime(endTime - board.startTime));
+
+        newLeaderboardTime(undefined, convertToTime(board.endTime - board.startTime));
+    } else {
+        newLeaderboardTime(undefined, "Failed", "black", "red");
+    }
+
+    displayLeaderboard();
+}
+
+async function displayLeaderboard() {
+    var gameOverLeaderboard = document.getElementById('game-over-leaderboard');
+    var gameOverHeader = document.getElementById("game-over-header");
+
+    gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1) + " (" + (window.showGlobalLeaderboard ? "Global" : "Local") + ")";
+    gameOverLeaderboard.innerHTML = '';
+
+    // Latest
+    if (!board.hasLost) {
+        newLeaderboardTime(undefined, convertToTime(board.endTime - board.startTime));
     } else {
         newLeaderboardTime(undefined, "Failed", "black", "red");
     }
@@ -312,9 +314,98 @@ function displayGameOver() {
         gameOverLeaderboard.appendChild(elem);
     } else {
         const MAX_SHOWN_SCORES = 10;
+        var leaderboard = window.showGlobalLeaderboard ? (await Leaderboard.global.get(board.difficulty)) : Leaderboard.local.get(board.difficulty);
         for (var i = 0; i < MAX_SHOWN_SCORES; i++) {
             var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
-            newLeaderboardTime(bestTime[key]?.[i]?.date, convertToTime(bestTime[key]?.[i]?.time), color, color);
+            newLeaderboardTime(leaderboard?.[i]?.date, convertToTime(leaderboard?.[i]?.time), color, color);
+        }
+    }
+}
+
+class Leaderboard {
+    static local = {
+        get: (difficulty) => {
+            var leaderboard = localStorage.getItem('best-time');
+
+            if (leaderboard == null) {
+                leaderboard = { easy: [], medium: [], hard: [] };
+                localStorage.setItem('best-time', JSON.stringify(leaderboard));
+            } else {
+                leaderboard = JSON.parse(leaderboard);
+            }
+
+            return leaderboard[difficulty];
+        },
+
+        submit: (time, difficulty) => {
+            console.trace();
+            var date = new Date().getTime();
+            var leaderboard = Leaderboard.local.get(difficulty);
+            var bestTime = JSON.parse(localStorage.getItem('best-time'));
+
+            leaderboard.push({ date, time });
+            leaderboard.sort((a, b) => a.time - b.time);
+
+            const MAX_STORED_SCORES = 30;
+            while (leaderboard.length > MAX_STORED_SCORES) {
+                leaderboard.pop();
+            }
+
+            bestTime[difficulty] = leaderboard;
+            localStorage.setItem('best-time', JSON.stringify(bestTime));
+        }
+    }
+
+    static global = {
+        cache: {},
+        UPDATE_FREQUENCY: 5 * 60 * 1000,
+        get: async (difficulty) => {
+            var headers = {
+                "Difficulty": difficulty
+            }
+
+            if (new Date().getTime() - (Leaderboard.global.cache?.[difficulty]?.time || 0) > Leaderboard.global.UPDATE_FREQUENCY) {
+                // Invalidate cache if it's too old
+                Leaderboard.global.cache[difficulty] = undefined;
+            }
+
+            var response;
+            if (Leaderboard.global.cache?.[difficulty] != undefined) {
+                console.log("global.get() from cache");
+                response = Leaderboard.global.cache[difficulty].data;
+            } else {
+                console.log("global.get() from remote server");
+                response = (await (await fetch("https://production.minesweeper.endy.workers.dev/get_score", { headers })).json());
+                Leaderboard.global.cache[difficulty] = { time: new Date().getTime(), data: response };
+            }
+
+            return response;
+        },
+
+        submit: async (time, difficulty) => {
+            var date = new Date().getTime();
+
+            // Add a way to create new users
+            // Could be possible to create a new user when a certain name is used for the first time
+            var headers = {
+                "Difficulty": difficulty,
+                "Timestamp": date,
+                "Time": time,
+                "Username": Settings.get()?.login?.username,
+                "Userhash": Settings.get()?.login?.hash
+            }
+
+            console.log("global.submit() to remote server");
+            await fetch("https://production.minesweeper.endy.workers.dev/submit_score", { headers });
+
+            // Update the cache, if it exists
+            Leaderboard.global.cache?.[difficulty]?.data?.push({
+                time,
+                date,
+                username: Settings.get()?.login?.username
+            });
+            Leaderboard.global.cache?.[difficulty]?.data?.sort((a, b) => a.time - b.time);
+            console.log(Leaderboard.global.cache?.[difficulty]?.data);
         }
     }
 }
@@ -358,7 +449,10 @@ class Tile {
 
         document.getElementsByTagName('board')[0].appendChild(sprite);
 
-        sprite.onclick = () => {
+        sprite.onmousedown = (ev) => {
+            // If this was rightclick
+            if (ev.button == 2) return;
+
             if (!board.hasStarted) {
                 board.hasStarted = true;
                 // Make it so that there aren't any bombs in the tile which the player clicked on
@@ -441,11 +535,18 @@ class NumberTile extends Tile {
 function openSettings() {
     var settingsAlert = document.getElementById('settings-alert');
     var gameOverAlert = document.getElementById('game-over-alert');
-
+    var label = document.getElementById("login-label");
+    document.getElementById('apply-settings').style.disabled = 'enabled';
+    
     settingsAlert.style.display = "flex";
     gameOverAlert.style.display = "none";
 
+    label.style.color = "black";
+    label.innerText = "Login:";
+
     document.getElementById(board.difficulty).selected = "selected";
+    document.getElementById('login-username').value = Settings.get()?.login?.username;
+    document.getElementById('login-password').value = "";
 
     var onblur = (ev, word, number) => {
         if (ev.target.value == "") return;
@@ -511,6 +612,7 @@ function closeSettings() {
 
 function init() {
     var diff = Settings.get()?.difficulty?.name;
+    window.showGlobalLeaderboard = false;
 
     if (diff == undefined) {
         Settings.save({
@@ -530,6 +632,11 @@ function init() {
     Settings.load();
 
     window.board = new Board(diff);
+
+    if (diff != "custom") {
+        // Preload the leaderboard so that the load-time is lower later
+        Leaderboard.global.get(diff);
+    }
 }
 
 class Settings {
@@ -567,12 +674,39 @@ class Settings {
         return settings;
     }
 
-    static apply() {
+    static async apply() {
         var changes = {};
+
+        var username = document.getElementById('login-username').value;
+        var password = document.getElementById('login-password').value;
+
+        if (username != "" && password != "") {
+            password = password.split("").map(x => x.charCodeAt(0)).reduce((t, a) => t + a);
+            var hash = btoa(btoa(encodeURI(username.split("").map(x => String.fromCharCode(x.charCodeAt(0) + password)).join(""))));
+
+            changes["login"] = {
+                username,
+                hash
+            }
+
+            document.getElementById('login-password').value = "";
+            var headers = {
+                "Username": username,
+                "Userhash": hash
+            }
+
+            var res = await fetch("https://production.minesweeper.endy.workers.dev/login_user", { headers });
+            if (res.status == 401) {
+                var label = document.getElementById("login-label");
+                label.style.color = "red";
+                label.innerText = "Login: (Incorrect username/password)";
+                return;
+            }
+        }
+
 
         // Change the font-size
         var fontSize = document.getElementById('font-list').value;
-//        document.querySelector("board").style.setProperty("--font-size", Settings.accessibility[fontSize] || "1em");
 
         changes["fontSize"] = fontSize;
                 

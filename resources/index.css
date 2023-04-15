@@ -225,7 +225,7 @@ button {
     font-weight: bold;
 }
 
-#open-settings-container {
+#open-settings-container, #change-leaderboard-container {
     width: 15%;
 
     top: 0px;
@@ -237,7 +237,9 @@ button {
     aspect-ratio: 1/1;
 }
 
-#retry-icon, #settings-icon {
+#change-leaderboard-container { left: 0px; }
+
+#retry-icon, #settings-icon, #change-leaderboard-icon {
     --size: 75%;
 
     height: var(--size);

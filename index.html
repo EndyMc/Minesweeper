@@ -30,11 +30,15 @@
             </div>
             <div id="game-over-leaderboard"></div>
 
-            <div id="open-settings-container" onclick="Settings.menu.open();">
+            <div id="open-settings-container" onclick="Settings.menu.open();" title="Open settings">
                 <img id="settings-icon" src="images/settings.png">
             </div>
+
+            <div id="change-leaderboard-container" onclick="window.showGlobalLeaderboard = !window.showGlobalLeaderboard; displayLeaderboard();" title="Change leaderboard">
+                <img id="change-leaderboard-icon" src="images/globe.png">
+            </div>
             
-            <div id="game-over-retry-button" onclick="init()">
+            <div id="game-over-retry-button" onclick="init()" title="Restart">
                 <img id="retry-icon" src="images/retry.png" alt="Retry">
             </div>
         </div>
@@ -54,6 +58,7 @@
                 <input id="bombs-settings-input">
 
                 <br>
+
                 <label for="font-list">Text scale:</label>
                 <select name="fonts" id="font-list">
                     <option value="small" id="font-small">Small</option>
@@ -61,13 +66,19 @@
                     <option value="large" id="font-large">Large</option>
                     <option value="extra-large" id="font-extra-large">Extra Large</option>
                 </select>
+
+                <br>
+
+                <label id="login-label">Login:</label>
+                <input type="text" id="login-username" placeholder="Username">
+                <input type="password" id="login-password" placeholder="Password (This isn't sent to server)">
             </div>
 
             <!-- Used to cancel any and all changes made since entering this view -->
-            <button id="cancel-settings" onclick="Settings.menu.close();">✗</button>
+            <button id="cancel-settings" onclick="Settings.menu.close();" title="Cancel">✗</button>
 
             <!-- Used to apply all changes -->
-            <button id="apply-settings" onclick="Settings.apply();">✓</button>
+            <button id="apply-settings" onclick="this.style.disabled = 'disabled'; Settings.apply();" title="Apply">✓</button>
         </div>
     </body>
 </html>
