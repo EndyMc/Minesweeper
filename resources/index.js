@@ -291,7 +291,9 @@ async function displayGameOver() {
             Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
 
             if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
-                await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                try {
+                    await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                } catch(err) {}
             }
         }
     } else {
@@ -302,8 +304,23 @@ async function displayGameOver() {
 }
 
 async function displayLeaderboard() {
+    var image = document.getElementById("change-leaderboard-icon");
+
+    window.changeLeaderboardCooldown = window.changeLeaderboardCooldown || false;
+    if (window.changeLeaderboardCooldown) {
+        return;
+    } else {
+        window.changeLeaderboardCooldown = true;
+        setTimeout(() => {
+            window.changeLeaderboardCooldown = false;
+            image.style.filter = "";
+        }, 500);
+    }
+
     var gameOverLeaderboard = document.getElementById('game-over-leaderboard');
     var gameOverHeader = document.getElementById("game-over-header");
+    
+    image.style.filter = "invert(30%)";
 
     gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1) + " (" + (window.showGlobalLeaderboard ? "Global" : "Local") + ")";
     gameOverLeaderboard.innerHTML = '';
