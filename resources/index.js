@@ -286,6 +286,11 @@ async function displayGameOver() {
 
     if (!board.hasLost) {
         board.endTime = performance.now();
+
+        var elem = document.createElement("h2");
+        elem.innerText = "Submitting score";
+        elem.style.gridRow = "2/11";
+        gameOverLeaderboard.appendChild(elem);
         
         newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime));
 
@@ -316,6 +321,8 @@ async function displayGameOver() {
                 } catch(err) {}
             }
         }
+
+        gameOverLeaderboard.removeChild(elem);
     } else {
         newLeaderboardTime(undefined, undefined, "Failed", "black", "red");
     }
@@ -356,13 +363,20 @@ async function displayLeaderboard() {
         newLeaderboardTime(undefined, undefined, "Failed" + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""), "black", "red");
     }
 
+    
     if (board.difficulty == "custom") {
         var elem = document.createElement("h2");
         elem.innerText = "Unranked";
         gameOverLeaderboard.appendChild(elem);
     } else {
+        var elem = document.createElement("h2");
+        elem.innerText = "Loading leaderboard";
+        elem.style.gridRow = "2/11";
+        gameOverLeaderboard.appendChild(elem);
+
         const MAX_SHOWN_SCORES = 10;
         var leaderboard = window.showGlobalLeaderboard ? (await Leaderboard.global.get(board.difficulty)) : Leaderboard.local.get(board.difficulty);
+        gameOverLeaderboard.removeChild(elem);
         for (var i = 0; i < MAX_SHOWN_SCORES; i++) {
             var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
             newLeaderboardTime(leaderboard?.[i]?.date || "-", leaderboard?.[i]?.username || (window.showGlobalLeaderboard ? "-" : undefined), convertToTime(leaderboard?.[i]?.time), color, color);
