@@ -81,7 +81,16 @@ class Board {
     }
 
     createMap(tilesToExclude = []) {
+        // Clear tiles
         document.querySelector("board").innerHTML = "";
+
+        // Reset flag counter
+        this.numberOfPlacedFlags = 0;
+        document.getElementById('flag-counter-text').innerText =  this.numberOfPlacedFlags + "/" + this.numberOfBombs;
+
+        // Reset timer
+        document.getElementById('time-display').innerText = "00:00:00";
+
         var map = [];
         var bombsLeftToPlace = this.numberOfBombs;
         for (var x = 0; x < this.size.width; x++) {
