@@ -1,4 +1,7 @@
 "use strict";
+
+document.oncontextmenu = (ev) => { ev.preventDefault(); return false; };
+
 class Board {
     static DEFAULT_DIFFICULTY = "medium";
     static DEFAULT_BOARD = {
@@ -130,14 +133,6 @@ class Board {
         for (var x = 0; x < this.size.width; x++) {
             for (var y = 0; y < this.size.height; y++) {
                 this.visualizeMapAt(x, y);
-
-                var tile = this.map[x][y];
-
-                tile.sprite.style.cursor = "default";
-
-                tile.sprite.onle = () => {};
-                tile.sprite.oncontextmenu = (ev) => { ev.preventDefault(); return false; };
-
             }
         }
 
@@ -180,7 +175,6 @@ class Board {
         tile.sprite.style.cursor = "default";
         
         tile.sprite.onmousedown = () => {};
-        tile.sprite.oncontextmenu = (ev) => { ev.preventDefault(); return false; };
         
         
         tile.sprite.style.backgroundColor = tile.sprite.style.backgroundColor == "rgb(0, 192, 192)" || tile.sprite.style.backgroundColor == "rgb(255, 255, 255)" ? "#FFFFFF" : "#F0F0F0";
@@ -484,7 +478,24 @@ class Tile {
 
         sprite.onmousedown = (ev) => {
             // If this was rightclick
-            if (ev.button == 2) return;
+            if (ev.button == 2) {
+                if (this.isVisualized) return;
+
+                this.isFlagged = !this.isFlagged;
+                if (this.isFlagged) {
+                    this.sprite.innerHTML = "<img style='color: red; position: relative;width:50%;height:50%;' src='images/flag.png' alt='F'>";
+    
+                    board.numberOfPlacedFlags++;
+                } else {
+                    this.sprite.innerHTML = "";
+    
+                    board.numberOfPlacedFlags--;
+                }
+    
+                document.getElementById('flag-counter-text').innerText =  board.numberOfPlacedFlags + "/" + board.numberOfBombs;
+    
+                return false;
+            }
 
             if (!board.hasStarted) {
                 board.hasStarted = true;
@@ -525,27 +536,6 @@ class Tile {
             }
             
             board.visualizeMapAt(this.position.x, this.position.y);                
-        }
-
-        sprite.oncontextmenu = (ev) => {
-            ev.preventDefault();
-
-            if (this.isVisualized) return;
-
-            this.isFlagged = !this.isFlagged;
-            if (this.isFlagged) {
-                this.sprite.innerHTML = "<img style='color: red; position: relative;width:50%;height:50%;' src='images/flag.png' alt='F'>";
-
-                board.numberOfPlacedFlags++;
-            } else {
-                this.sprite.innerHTML = "";
-
-                board.numberOfPlacedFlags--;
-            }
-
-            document.getElementById('flag-counter-text').innerText =  board.numberOfPlacedFlags + "/" + board.numberOfBombs;
-
-            return false;
         }
 
         return sprite;
