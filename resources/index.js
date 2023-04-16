@@ -266,7 +266,6 @@ async function displayGameOver() {
 
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var bestTime = Leaderboard.local.get(board.difficulty);
-    var key = board.difficulty;
 
     gameOverLeaderboard.innerHTML = "";
 
@@ -292,7 +291,13 @@ async function displayGameOver() {
 
             if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
                 try {
-                    await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                    // We only need to prioritise the submission of this score if it's going to be shown in the next step
+                    // Otherwise, there's no reason to wait for this to finish before showing the local leaderboard
+                    if (window.showGlobalLeaderboard) {
+                        await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                    } else {
+                        Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                    }
                 } catch(err) {}
             }
         }
@@ -640,7 +645,7 @@ function closeSettings() {
 
 function init() {
     var diff = Settings.get()?.difficulty?.name;
-    window.showGlobalLeaderboard = false;
+    window.showGlobalLeaderboard = window.showGlobalLeaderboard || false;
 
     if (diff == undefined) {
         Settings.save({
