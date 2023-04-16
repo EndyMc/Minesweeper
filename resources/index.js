@@ -4,6 +4,7 @@ document.oncontextmenu = (ev) => { ev.preventDefault(); return false; };
 
 class Board {
     static DEFAULT_DIFFICULTY = "medium";
+    static COLORS = [ "green", "purple", "orange", "red", "blue", "black", "#BB7E8C", "gray" ]
     static DEFAULT_BOARD = {
         easy: {
             width: 10,
@@ -80,6 +81,7 @@ class Board {
     }
 
     createMap(tilesToExclude = []) {
+        document.querySelector("board").innerHTML = "";
         var map = [];
         var bombsLeftToPlace = this.numberOfBombs;
         for (var x = 0; x < this.size.width; x++) {
@@ -142,6 +144,7 @@ class Board {
     }
 
     visualizeMapAt(x, y) {
+        if (this.isVisualized) return;
         if (x == undefined || y == undefined) return;
         if (this.map[x][y].isFlagged) return;
 
@@ -157,7 +160,8 @@ class Board {
                 board.visualizeWholeMap();
             }
         } else if (tile.numberOfBombs != 0) {
-            tile.sprite.innerHTML = "<div style='color: " + (tile.numberOfBombs == 1 ? "green" : tile.numberOfBombs == 2 ? "aqua" : tile.numberOfBombs == 3 ? "orange" : "coral") + ";'>" + tile.numberOfBombs + "</div>";
+            tile.sprite.style.color = Board.COLORS[tile.numberOfBombs - 1];
+            tile.sprite.innerHTML = "<span>" + tile.numberOfBombs + "</span>";
         } else {
             // Check cardinal directions
             if (this.checkedTiles[(x - 1) + ", " + (y)] == undefined && x - 1 >= 0) { this.checkedTiles[(x - 1) + ", " + (y)] = this.map[x - 1][y].numberOfBombs; this.visualizeMapAt(x - 1, y); }
@@ -171,12 +175,10 @@ class Board {
             if (this.checkedTiles[(x - 1) + ", " + (y + 1)] == undefined && x - 1 >= 0 && y + 1 < this.size.height) { this.checkedTiles[(x - 1) + ", " + (y + 1)] = this.map[x - 1][y + 1].numberOfBombs; this.visualizeMapAt(x - 1, y + 1); }
             if (this.checkedTiles[(x + 1) + ", " + (y - 1)] == undefined && x + 1 < this.size.width && y - 1 >= 0) { this.checkedTiles[(x + 1) + ", " + (y - 1)] = this.map[x + 1][y - 1].numberOfBombs; this.visualizeMapAt(x + 1, y - 1); }
         }
-
-        tile.sprite.style.cursor = "default";
         
         tile.sprite.onmousedown = () => {};
         
-        
+        tile.sprite.style.cursor = "default";
         tile.sprite.style.backgroundColor = tile.sprite.style.backgroundColor == "rgb(0, 192, 192)" || tile.sprite.style.backgroundColor == "rgb(255, 255, 255)" ? "#FFFFFF" : "#F0F0F0";
 
         if (!this.hasLost && !this.hasWon) {
