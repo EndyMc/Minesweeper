@@ -314,6 +314,7 @@ async function displayLeaderboard() {
         setTimeout(() => {
             window.changeLeaderboardCooldown = false;
             image.style.filter = "";
+            image.style.cursor = "";
         }, 500);
     }
 
@@ -321,6 +322,7 @@ async function displayLeaderboard() {
     var gameOverHeader = document.getElementById("game-over-header");
     
     image.style.filter = "invert(30%)";
+    image.style.cursor = "not-allowed";
 
     gameOverHeader.innerText = board.difficulty[0].toUpperCase() + board.difficulty.substring(1) + " (" + (window.showGlobalLeaderboard ? "Global" : "Local") + ")";
     gameOverLeaderboard.innerHTML = '';
