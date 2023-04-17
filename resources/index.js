@@ -186,7 +186,7 @@ class Board {
         }
         
         tile.sprite.onmousedown = () => {};
-        
+
         tile.sprite.style.cursor = "default";
         tile.sprite.style.backgroundColor = tile.sprite.style.backgroundColor == "rgb(0, 192, 192)" || tile.sprite.style.backgroundColor == "rgb(255, 255, 255)" ? "#FFFFFF" : "#F0F0F0";
 
@@ -204,28 +204,36 @@ class Board {
     }
 }
 
-function newLeaderboardTime (date = new Date().getTime(), username, time, indexColor = "black", timeColor = "black") {
+function newLeaderboardTime (date, username, time, indexColor = "black", timeColor = "black") {
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var leaderboardRow = document.createElement("div");
     var leaderboardIndex = document.createElement("div");
+    var leaderboardDate = document.createElement("div");
     var leaderboardName = document.createElement("div");
     var leaderboardTime = document.createElement("div");
 
     leaderboardRow.className = "leaderboard-row";
     leaderboardIndex.className = "leaderboard-index";
+    leaderboardDate.className = "leaderboard-date";
     leaderboardName.className = "leaderboard-name";
     leaderboardTime.className = "leaderboard-time";
 
     leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
     leaderboardIndex.style.color = indexColor;
+    leaderboardDate.style.color = "black";
     leaderboardName.style.color = timeColor;
     leaderboardTime.style.color = timeColor;
 
     leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
     leaderboardTime.innerText = time;
-
+    
     gameOverLeaderboard.appendChild(leaderboardRow);
     leaderboardRow.appendChild(leaderboardIndex);
+
+    if (date != undefined) {
+        leaderboardDate.innerText = date == "-" ? date : new Date(date).toLocaleString(undefined, { hour: "2-digit", minute: "2-digit", month: "short", year: "numeric", day: "2-digit", timeZone: "UTC" });
+        leaderboardRow.appendChild(leaderboardDate);
+    }
 
     if (username != undefined) {
         leaderboardName.innerText = username;
@@ -233,6 +241,8 @@ function newLeaderboardTime (date = new Date().getTime(), username, time, indexC
     }
 
     leaderboardRow.appendChild(leaderboardTime);
+
+    leaderboardRow.style.gridTemplateColumns = "10% repeat(" + (leaderboardRow.childElementCount - 1) + ", 1fr)";
 }
 
 async function displayGameOver() {
@@ -258,8 +268,10 @@ async function displayGameOver() {
         return (hours > 0 ? hours + "h, " : "") + (minutes > 0 ? minutes + "m, " : "") + seconds + "s" + (timeInMilis > 60 * 1000 ? "" : " " + milliseconds + "ms");
     };
 
-    { // Update the clock one last time, so that there isn't a mismatch between the time in the game-over menu and there
+    if (board.startTime != undefined) {
+        // Update the clock one last time, so that there isn't a mismatch between the time in the game-over menu and there
         clearInterval(board.clockInterval);
+
 
         var time = performance.now() - board.startTime;
         var hours = "" + Math.floor(time / 1000 / 60 / 60);
@@ -276,8 +288,12 @@ async function displayGameOver() {
 
     if (!board.hasLost) {
         board.endTime = performance.now();
+
+        var elem = document.createElement("h2");
+        elem.innerText = "Submitting score";
+        gameOverLeaderboard.appendChild(elem);
         
-        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime));
+        newLeaderboardTime(undefined, undefined, board.startTime == undefined || board.endTime == undefined ? "Play a game first" : convertToTime(board.endTime - board.startTime));
 
         if (board.difficulty != "custom") {
             if (bestTime == undefined) {
@@ -292,20 +308,24 @@ async function displayGameOver() {
                 }
             }
 
-            Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
-
-            if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
-                try {
-                    // We only need to prioritise the submission of this score if it's going to be shown in the next step
-                    // Otherwise, there's no reason to wait for this to finish before showing the local leaderboard
-                    if (window.showGlobalLeaderboard) {
-                        await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
-                    } else {
-                        Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
-                    }
-                } catch(err) {}
+            if (board.startTime != undefined && board.endTime != undefined) {
+                Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
+                
+                if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
+                    try {
+                        // We only need to prioritise the submission of this score if it's going to be shown in the next step
+                        // Otherwise, there's no reason to wait for this to finish before showing the local leaderboard
+                        if (window.showGlobalLeaderboard) {
+                            await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                        } else {
+                            Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                        }
+                    } catch(err) {}
+                }
             }
         }
+
+        gameOverLeaderboard.removeChild(elem);
     } else {
         newLeaderboardTime(undefined, undefined, "Failed", "black", "red");
     }
@@ -341,21 +361,27 @@ async function displayLeaderboard() {
 
     // Latest
     if (!board.hasLost) {
-        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
+        newLeaderboardTime(undefined, undefined, (board.startTime == undefined || board.endTime == undefined ? "Play a game first" : convertToTime(board.endTime - board.startTime)) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
     } else {
         newLeaderboardTime(undefined, undefined, "Failed" + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""), "black", "red");
     }
 
+    
     if (board.difficulty == "custom") {
         var elem = document.createElement("h2");
         elem.innerText = "Unranked";
         gameOverLeaderboard.appendChild(elem);
     } else {
+        var elem = document.createElement("h2");
+        elem.innerText = "Loading leaderboard";
+        gameOverLeaderboard.appendChild(elem);
+
         const MAX_SHOWN_SCORES = 10;
         var leaderboard = window.showGlobalLeaderboard ? (await Leaderboard.global.get(board.difficulty)) : Leaderboard.local.get(board.difficulty);
+        gameOverLeaderboard.removeChild(elem);
         for (var i = 0; i < MAX_SHOWN_SCORES; i++) {
             var color = i == 0 ? "gold" : i == 1 ? "#f0f0f0" : i == 2 ? "#cd7f32" : "black";
-            newLeaderboardTime(leaderboard?.[i]?.date, leaderboard?.[i]?.username || (window.showGlobalLeaderboard ? "-" : undefined), convertToTime(leaderboard?.[i]?.time), color, color);
+            newLeaderboardTime(leaderboard?.[i]?.date || "-", leaderboard?.[i]?.username || (window.showGlobalLeaderboard ? "-" : undefined), convertToTime(leaderboard?.[i]?.time), color, color);
         }
     }
 }

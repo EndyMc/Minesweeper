@@ -12,7 +12,7 @@
         <script src="resources/index.js"></script>
 
     </head>
-    <body onload="init()">
+    <body onload="init(); displayGameOver()">
         <div id="time-display-div">
             <center id="time-display">00:00:00</center>
         </div>
@@ -25,27 +25,23 @@
         <div id="background-dim"></div>
 
         <div id="game-over-alert">
-            <div style="height:10%; width: 100%; display: grid;">
-                <h2 id="game-over-header">Easy</h2>
-            </div>
             <div id="game-over-leaderboard"></div>
 
-            <div id="open-settings-container" onclick="Settings.menu.open();" title="Open settings">
-                <img id="settings-icon" src="images/settings.png">
+            <!-- The topmost container in the menu -->
+            <div style="height:10%; width: 100%; display: grid; position: absolute; grid-template-columns: 15% auto 15%; align-content: center;">
+                <img id="change-leaderboard-icon" src="images/globe.png" onclick="window.showGlobalLeaderboard = !window.showGlobalLeaderboard; displayLeaderboard();" title="Change leaderboard" draggable="false">
+                <h2 id="game-over-header">Easy</h2>
+                <img id="settings-icon" src="images/settings.png" onclick="Settings.menu.open();" title="Open settings" draggable="false">
             </div>
 
-            <div id="change-leaderboard-container" onclick="window.showGlobalLeaderboard = !window.showGlobalLeaderboard; displayLeaderboard();" title="Change leaderboard">
-                <img id="change-leaderboard-icon" src="images/globe.png">
-            </div>
-            
             <div id="game-over-retry-button" onclick="init()" title="Restart">
-                <img id="retry-icon" src="images/retry.png" alt="Retry">
+                <img id="retry-icon" src="images/retry.png" alt="Retry" draggable="false">
             </div>
         </div>
 
         <div id="settings-alert">
             <div id="settings">
-                <label for="diffs-list">Difficulty:</label>
+                <label for="diffs-list" style="font-size: 2vmin;">Difficulty:</label>
                 <select name="diffs" id="diffs-list" onchange="difficultyListChanged();">
                     <option value="easy" id="easy">Easy</option>
                     <option value="medium" id="medium">Medium</option>
@@ -59,7 +55,7 @@
 
                 <br>
 
-                <label for="font-list">Text scale:</label>
+                <label for="font-list" style="font-size: 2vmin;">Text scale:</label>
                 <select name="fonts" id="font-list">
                     <option value="small" id="font-small">Small</option>
                     <option value="normal" id="font-normal" selected>Normal</option>
@@ -69,7 +65,7 @@
 
                 <br>
 
-                <label id="login-label">Login:</label>
+                <label id="login-label" style="font-size: 2vmin;">Login:</label>
                 <input type="text" id="login-username" placeholder="Username" maxlength="10">
                 <input type="password" id="login-password" placeholder="Password">
             </div>
