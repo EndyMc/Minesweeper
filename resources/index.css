@@ -178,6 +178,10 @@ button {
     font-size: 1.5vmin;
 }
 
+#game-over-leaderboard>h2 {
+    grid-row: 2/11;
+}
+
 #flag-counter {
     color: white;
 

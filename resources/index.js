@@ -268,8 +268,10 @@ async function displayGameOver() {
         return (hours > 0 ? hours + "h, " : "") + (minutes > 0 ? minutes + "m, " : "") + seconds + "s" + (timeInMilis > 60 * 1000 ? "" : " " + milliseconds + "ms");
     };
 
-    { // Update the clock one last time, so that there isn't a mismatch between the time in the game-over menu and there
+    if (board.startTime != undefined) {
+        // Update the clock one last time, so that there isn't a mismatch between the time in the game-over menu and there
         clearInterval(board.clockInterval);
+
 
         var time = performance.now() - board.startTime;
         var hours = "" + Math.floor(time / 1000 / 60 / 60);
@@ -289,10 +291,9 @@ async function displayGameOver() {
 
         var elem = document.createElement("h2");
         elem.innerText = "Submitting score";
-        elem.style.gridRow = "2/11";
         gameOverLeaderboard.appendChild(elem);
         
-        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime));
+        newLeaderboardTime(undefined, undefined, board.startTime == undefined || board.endTime == undefined ? "Play a game first" : convertToTime(board.endTime - board.startTime));
 
         if (board.difficulty != "custom") {
             if (bestTime == undefined) {
@@ -307,18 +308,20 @@ async function displayGameOver() {
                 }
             }
 
-            Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
-
-            if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
-                try {
-                    // We only need to prioritise the submission of this score if it's going to be shown in the next step
-                    // Otherwise, there's no reason to wait for this to finish before showing the local leaderboard
-                    if (window.showGlobalLeaderboard) {
-                        await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
-                    } else {
-                        Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
-                    }
-                } catch(err) {}
+            if (board.startTime != undefined && board.endTime != undefined) {
+                Leaderboard.local.submit(board.endTime - board.startTime, board.difficulty);
+                
+                if (Settings.get()?.login?.username != undefined && Settings.get()?.login?.hash != undefined) {
+                    try {
+                        // We only need to prioritise the submission of this score if it's going to be shown in the next step
+                        // Otherwise, there's no reason to wait for this to finish before showing the local leaderboard
+                        if (window.showGlobalLeaderboard) {
+                            await Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                        } else {
+                            Leaderboard.global.submit(board.endTime - board.startTime, board.difficulty);
+                        }
+                    } catch(err) {}
+                }
             }
         }
 
@@ -358,7 +361,7 @@ async function displayLeaderboard() {
 
     // Latest
     if (!board.hasLost) {
-        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
+        newLeaderboardTime(undefined, undefined, (board.startTime == undefined || board.endTime == undefined ? "Play a game first" : convertToTime(board.endTime - board.startTime)) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
     } else {
         newLeaderboardTime(undefined, undefined, "Failed" + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""), "black", "red");
     }
@@ -371,7 +374,6 @@ async function displayLeaderboard() {
     } else {
         var elem = document.createElement("h2");
         elem.innerText = "Loading leaderboard";
-        elem.style.gridRow = "2/11";
         gameOverLeaderboard.appendChild(elem);
 
         const MAX_SHOWN_SCORES = 10;
