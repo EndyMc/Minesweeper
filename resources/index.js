@@ -436,7 +436,7 @@ class Leaderboard {
 
             console.log(bestTime);
             // Remove all null, bugged scores
-            bestTime[difficulty] = bestTime[difficulty].filter(l => l.time != null);
+            bestTime[difficulty] = bestTime?.[difficulty].filter(l => l.time != null) || [];
             console.log(bestTime);
 
             localStorage.setItem('best-time', JSON.stringify(bestTime));        
