@@ -284,6 +284,8 @@ async function displayGameOver() {
         timeDisplay.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
     }
 
+    Leaderboard.local.clearNullScores(board.difficulty);
+
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var bestTime = Leaderboard.local.get(board.difficulty);
 
@@ -297,9 +299,9 @@ async function displayGameOver() {
         elem.style.gridRow = "2/11";
         gameOverLeaderboard.appendChild(elem);
         
-        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime));
+        newLeaderboardTime(undefined, undefined, isNaN(board.endTime - board.startTime) ? "Please submit a score" : convertToTime(board.endTime - board.startTime));
 
-        if (board.difficulty != "custom") {
+        if (board.difficulty != "custom" && !isNaN(board.startTime)) {
             if (bestTime == undefined) {
                 // Set this to an array
                 bestTime = [];
@@ -363,7 +365,7 @@ async function displayLeaderboard() {
 
     // Latest
     if (!board.hasLost) {
-        newLeaderboardTime(undefined, undefined, convertToTime(board.endTime - board.startTime) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
+        newLeaderboardTime(undefined, undefined, (isNaN(board.endTime - board.startTime) ? "Please submit a score" : convertToTime(board.endTime - board.startTime)) + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""));
     } else {
         newLeaderboardTime(undefined, undefined, "Failed" + (Settings.get()?.login?.hash == undefined && window.showGlobalLeaderboard ? " (Please login)" : ""), "black", "red");
     }
@@ -404,8 +406,15 @@ class Leaderboard {
             return leaderboard[difficulty];
         },
 
+        /**
+         * 
+         * @param {number} time 
+         * @param {"easy"|"medium"|"hard"} difficulty 
+         * @returns 
+         */
         submit: (time, difficulty) => {
-            console.trace();
+            console.trace("Submitting score", time, difficulty);
+            
             var date = new Date().getTime();
             var leaderboard = Leaderboard.local.get(difficulty);
             var bestTime = JSON.parse(localStorage.getItem('best-time'));
@@ -420,6 +429,17 @@ class Leaderboard {
 
             bestTime[difficulty] = leaderboard;
             localStorage.setItem('best-time', JSON.stringify(bestTime));
+        },
+
+        clearNullScores: (difficulty = "easy") => {
+            var bestTime = JSON.parse(localStorage.getItem('best-time'));
+
+            console.log(bestTime);
+            // Remove all null, bugged scores
+            bestTime[difficulty] = bestTime[difficulty].filter(l => l.time != null);
+            console.log(bestTime);
+
+            localStorage.setItem('best-time', JSON.stringify(bestTime));        
         }
     }
 
