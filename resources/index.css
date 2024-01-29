@@ -110,7 +110,7 @@ button {
     
     border-radius: 1vmin;
     
-    background-color: #7ED6DA;
+    background-color: white;
     
     display: none;
     
@@ -124,8 +124,8 @@ button {
     display: grid;
     align-items: center;
 
-    border-bottom: 1px solid whitesmoke;
-    border-top: 1px solid whitesmoke;
+/*    border-bottom: 1px solid whitesmoke;
+    border-top: 1px solid whitesmoke;*/
 
     width: 100%;
     height: var(--height);
@@ -139,7 +139,7 @@ button {
     align-content: center;
 }
 
-.leaderboard-index {
+/*.leaderboard-index {
     border-left: 0px;
     border-right: 1px solid whitesmoke;
 }
@@ -152,12 +152,12 @@ button {
 .leaderboard-date, .leaderboard-name {
     border-left: 1px solid whitesmoke;
     border-right: 1px solid whitesmoke;
-}
+}*/
 
 #game-over-leaderboard {
     --width: calc(100%);
     /* Full height - button height - button margin - top - border */
-    --height: calc(100% - 15% - 4% - 10% - 2px);
+    --height: calc(100% - 15% - 4% - 10% - 0px);
 
     position: absolute;
     
@@ -167,8 +167,8 @@ button {
     display: grid;
     grid-template-rows: auto;
 
-    border-top: 1px solid whitesmoke;
-    border-bottom: 1px solid whitesmoke;
+/*    border-top: 1px solid whitesmoke;
+    border-bottom: 1px solid whitesmoke;*/
 
     top: 10%;
 
@@ -283,7 +283,7 @@ button {
 
     position: absolute;
 
-    background-color: forestgreen;
+    color: white;
     border: none;
 
     font-size: 2.5vh;
@@ -294,11 +294,11 @@ button {
 #apply-settings {
     left: 0px;
 
-    color: lightgreen;
+    background-color: forestgreen;
 }
 
 #cancel-settings {
     right: 0px;
 
-    color: red;
+    background-color: red;
 }

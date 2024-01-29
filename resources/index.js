@@ -209,7 +209,7 @@ class Board {
     }
 }
 
-function newLeaderboardTime (date, username, time, indexColor = "black", timeColor = "black") {
+function newLeaderboardTime (date, username, time) {
     var gameOverLeaderboard = document.getElementById("game-over-leaderboard");
     var leaderboardRow = document.createElement("div");
     var leaderboardIndex = document.createElement("div");
@@ -224,10 +224,22 @@ function newLeaderboardTime (date, username, time, indexColor = "black", timeCol
     leaderboardTime.className = "leaderboard-time";
 
     leaderboardRow.style.setProperty("--index", "" + gameOverLeaderboard.childElementCount);
-    leaderboardIndex.style.color = indexColor;
+    leaderboardIndex.style.color = "black";
     leaderboardDate.style.color = "black";
-    leaderboardName.style.color = timeColor;
-    leaderboardTime.style.color = timeColor;
+    leaderboardName.style.color = "black";
+    leaderboardTime.style.color = "black";
+
+    if (gameOverLeaderboard.childElementCount == 0) {
+        leaderboardRow.style.backgroundColor =  time == "Failed" ? "red" : "#0D3";
+    } else if (gameOverLeaderboard.childElementCount == 1) {
+        leaderboardRow.style.backgroundColor = "gold";
+    } else if (gameOverLeaderboard.childElementCount == 2) {
+        leaderboardRow.style.backgroundColor = "silver";
+    } else if (gameOverLeaderboard.childElementCount == 3) {
+        leaderboardRow.style.backgroundColor = "#CD7E32";
+    } else if (gameOverLeaderboard.childElementCount % 2 == 1) {
+        leaderboardRow.style.backgroundColor = "#DDD";
+    }
 
     leaderboardIndex.innerText = "" + (gameOverLeaderboard.childElementCount == 0 ? "Latest" : gameOverLeaderboard.childElementCount);
     leaderboardTime.innerText = time;
