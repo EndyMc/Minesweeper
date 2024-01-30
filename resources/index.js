@@ -160,19 +160,28 @@ class Board {
     visualizeMapAt(x, y) {
         if (this.isVisualized) return;
         if (x == undefined || y == undefined) return;
-        if (this.map[x][y].isFlagged) return;
-
+        
         var tile = this.map[x][y];
+        if (tile.isFlagged) return;
 
         tile.isVisualized = true;
-        
+
+        tile.sprite.onmousedown = () => {};
+        tile.sprite.style.cursor = "default";
+
         if (tile.isBomb) {
             tile.sprite.innerHTML = "<img src='images/mine.png' alt='M' style='color: red; width: 50%; height: 50%;'></img>";
-
+            
             if (!this.hasWon && !this.hasLost) {
                 this.hasLost = true;
                 board.visualizeWholeMap();
+
+                tile.sprite.style.backgroundColor = "orange";
+                tile.sprite.style.opacity = 0.75;
+
+                return;
             }
+
         } else if (tile.numberOfBombs != 0) {
             tile.sprite.style.color = Board.COLORS[tile.numberOfBombs - 1];
             tile.sprite.innerHTML = "<span>" + tile.numberOfBombs + "</span>";
@@ -190,9 +199,6 @@ class Board {
             if (this.checkedTiles[(x + 1) + ", " + (y - 1)] == undefined && x + 1 < this.size.width && y - 1 >= 0) { this.checkedTiles[(x + 1) + ", " + (y - 1)] = this.map[x + 1][y - 1].numberOfBombs; this.visualizeMapAt(x + 1, y - 1); }
         }
         
-        tile.sprite.onmousedown = () => {};
-
-        tile.sprite.style.cursor = "default";
         tile.sprite.style.backgroundColor = tile.sprite.style.backgroundColor == "rgb(0, 192, 192)" || tile.sprite.style.backgroundColor == "rgb(255, 255, 255)" ? "#FFFFFF" : "#F0F0F0";
 
         if (!this.hasLost && !this.hasWon) {

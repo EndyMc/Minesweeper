@@ -28,10 +28,11 @@
             <div id="game-over-leaderboard"></div>
 
             <!-- The topmost container in the menu -->
-            <div style="height:10%; width: 100%; display: grid; position: absolute; grid-template-columns: 15% auto 15%; align-content: center;">
+            <div style="height:10%; width: 100%; display: grid; position: absolute; grid-template-columns: 15% auto 7.5% 7.5%; align-content: center;">
                 <img id="change-leaderboard-icon" src="images/globe.png" onclick="window.showGlobalLeaderboard = !window.showGlobalLeaderboard; displayLeaderboard();" title="Change leaderboard" draggable="false">
                 <h2 id="game-over-header">Easy</h2>
                 <img id="settings-icon" src="images/settings.png" onclick="Settings.menu.open();" title="Open settings" draggable="false">
+                <img id="opacity-icon" src="images/opacity.png" onmousedown="document.getElementById('game-over-alert').style.opacity = 0.05;" onmouseup="document.getElementById('game-over-alert').style.opacity = 1;" title="Hold Down to View the board again" draggable="false">
             </div>
 
             <div id="game-over-retry-button" onclick="init()" title="Restart">

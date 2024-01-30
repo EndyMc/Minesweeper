@@ -230,7 +230,7 @@ button {
     font-weight: bold;
 }
 
-#retry-icon, #settings-icon, #change-leaderboard-icon {
+#retry-icon, #settings-icon, #change-leaderboard-icon, #opacity-icon {
     --size: 75%;
 
     max-height: var(--size);
