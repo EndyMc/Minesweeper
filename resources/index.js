@@ -552,6 +552,12 @@ class Tile {
 
         sprite.style.backgroundColor = (this.position.x + this.position.y) % 2 == 0 ? "#00a6a6" : "#00C0C0";
 
+        sprite.innerHTML = "<img style='color: red; position: absolute; width: 50%; height: 50%; display: none; left: 25%; top: 25%;' src='images/flag.png' alt='F'>" +
+            "<div class=\"center-circle\" ontransitionend=\"this.style.width = '0px'; this.style.height = '0px'; this.style.left = 'calc((100% - 50%) / 2 + 50% / 2)'; this.style.top = 'calc((100% - 50%) / 2 + 50% / 2)';\"></div>" +
+            "<div class=\"left-circle\" ontransitionend=\"this.style.width = '0px'; this.style.height = '0px'; this.style.left = 'calc(2% + 35% / 2)'; this.style.top = 'calc(50% + 35% / 2)';\"></div>" +
+            "<div class=\"right-circle\" ontransitionend=\"this.style.width = '0px'; this.style.height = '0px'; this.style.left = 'calc(60% + 25% / 2)'; this.style.top = 'calc(10% + 25% / 2)';\"></div>"
+
+
         document.getElementsByTagName('board')[0].appendChild(sprite);
 
         sprite.oncontextmenu = (ev) => {
@@ -560,11 +566,14 @@ class Tile {
 
             this.isFlagged = !this.isFlagged;
             if (this.isFlagged) {
-                this.sprite.innerHTML = "<img style='color: red; position: relative; width: 50%; height: 50%;' src='images/flag.png' alt='F'>";
+                sprite.querySelector("img").style.display = "block";
+                runAnimation();
+//                this.sprite.innerHTML = "<img style='color: red; position: relative; width: 50%; height: 50%;' src='images/flag.png' alt='F'>";
 
                 board.numberOfPlacedFlags++;
             } else {
-                this.sprite.innerHTML = "";
+                sprite.querySelector("img").style.display = "none";
+//                this.sprite.innerHTML = "";
 
                 board.numberOfPlacedFlags--;
             }
@@ -624,6 +633,33 @@ class Tile {
             
             board.visualizeMapAt(this.position.x, this.position.y);                
         }
+
+        function runAnimation() {
+            var centerCircle = sprite.querySelector(".center-circle");
+            var rightCircle = sprite.querySelector(".right-circle");
+            var leftCircle = sprite.querySelector(".left-circle");
+            
+            // Center
+            centerCircle.style.left = "25%";
+            centerCircle.style.top = "25%";
+
+            centerCircle.style.width = "50%";
+            centerCircle.style.height = "50%";
+            
+            // Left
+            leftCircle.style.left = "2%";
+            leftCircle.style.top = "50%";
+            
+            leftCircle.style.width = "35%";
+            leftCircle.style.height = "35%";
+        
+            // Right
+            rightCircle.style.left = "60%";
+            rightCircle.style.top = "10%";
+
+            rightCircle.style.width = "25%";
+            rightCircle.style.height = "25%";
+          }
 
         return sprite;
     }

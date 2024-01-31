@@ -302,3 +302,36 @@ button {
 
     background-color: red;
 }
+
+tile>.center-circle, tile>.left-circle, tile>.right-circle {
+    width: 0px;
+    height: 0px;
+
+    background-color: blue;
+
+    border-radius: 100vmax;
+
+    position: absolute;
+    transition: width 300ms, height 300ms, left 300ms, top 300ms;
+}
+
+tile>.center-circle {
+    left: calc((100% - 50%) / 2 + 50% / 2);
+    top: calc((100% - 50%) / 2 + 50% / 2);
+}
+
+tile>.left-circle {
+    left: calc(2% + 35% / 2);
+    top: calc(50% + 35% / 2);
+
+/*    left: 50%/*calc((100% - 0px) / 2)*/;
+/*    top: 2%/*calc((100% - 0px) / 2)*/;
+}
+
+tile>.right-circle {
+    left: calc(60% + 25% / 2);
+    top: calc(10% + 25% / 2);
+
+/*    left: 60%/*calc((100% - 0px) / 2)*/;
+/*    top: 10%/*calc((100% - 0px) / 2)*/;
+}
