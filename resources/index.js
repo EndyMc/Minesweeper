@@ -421,7 +421,7 @@ class Leaderboard {
                 leaderboard = JSON.parse(leaderboard);
             }
 
-            return leaderboard[difficulty];
+            return leaderboard?.[difficulty] || [];
         },
 
         /**
@@ -451,11 +451,10 @@ class Leaderboard {
 
         clearNullScores: (difficulty = "easy") => {
             var bestTime = JSON.parse(localStorage.getItem('best-time'));
+            if (bestTime == null) return;
 
-            console.log(bestTime);
             // Remove all null, bugged scores
             bestTime[difficulty] = bestTime?.[difficulty]?.filter(l => l.time != null) || [];
-            console.log(bestTime);
 
             localStorage.setItem('best-time', JSON.stringify(bestTime));        
         }
