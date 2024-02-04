@@ -567,12 +567,13 @@ class Tile {
             this.isFlagged = !this.isFlagged;
             if (this.isFlagged) {
                 sprite.querySelector("img").style.display = "block";
-                runAnimation();
+                runAnimation("#00AB41");
 //                this.sprite.innerHTML = "<img style='color: red; position: relative; width: 50%; height: 50%;' src='images/flag.png' alt='F'>";
 
                 board.numberOfPlacedFlags++;
             } else {
                 sprite.querySelector("img").style.display = "none";
+                runAnimation("red");
 //                this.sprite.innerHTML = "";
 
                 board.numberOfPlacedFlags--;
@@ -634,11 +635,15 @@ class Tile {
             board.visualizeMapAt(this.position.x, this.position.y);                
         }
 
-        function runAnimation() {
+        function runAnimation(color = "blue") {
             var centerCircle = sprite.querySelector(".center-circle");
             var rightCircle = sprite.querySelector(".right-circle");
             var leftCircle = sprite.querySelector(".left-circle");
             
+            centerCircle.style.backgroundColor = color;
+            leftCircle.style.backgroundColor = color;
+            rightCircle.style.backgroundColor = color;
+
             // Center
             centerCircle.style.left = "25%";
             centerCircle.style.top = "25%";
