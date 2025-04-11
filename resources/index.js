@@ -295,11 +295,13 @@ async function displayGameOver() {
         clearInterval(board.clockInterval);
 
         var time = performance.now() - board.startTime;
-        var hours = "" + Math.floor(time / 1000 / 60 / 60);
-        var minutes = "" + Math.floor(time / 1000 / 60 % 60);
-        var seconds = "" + Math.floor(time / 1000 % 60);
-
-        timeDisplay.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+        if (!isNaN(time)) {
+            var hours = "" + Math.floor(time / 1000 / 60 / 60);
+            var minutes = "" + Math.floor(time / 1000 / 60 % 60);
+            var seconds = "" + Math.floor(time / 1000 % 60);
+            
+            timeDisplay.innerText = (hours.length == 1 ? "0" + hours : hours) + ":" + (minutes.length == 1 ? "0" + minutes : minutes) + ":" + (seconds.length == 1 ? "0" + seconds : seconds);
+        }
     }
 
     Leaderboard.local.clearNullScores(board.difficulty);
