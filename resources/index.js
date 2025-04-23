@@ -37,6 +37,9 @@ class Board {
         if (difficulty == "custom") {
             var settings = Settings.get().difficulty;
 
+            /**
+             * @type {{width: number, height: number}}
+             */
             this.size = {
                 width: Number(settings.width),
                 height: Number(settings.height)
@@ -56,6 +59,9 @@ class Board {
                 location.reload();
             }
 
+            /**
+             * @type {number}
+             */
             this.numberOfBombs = settings.bombs == undefined ? Math.ceil(this.size.width * this.size.height / 5) : Number(settings.bombs);
         } else if (/^(easy|medium|hard)$/.test(difficulty)) {
             this.size = {
@@ -66,15 +72,36 @@ class Board {
             this.numberOfBombs = Board.DEFAULT_BOARD[difficulty].bombs;
         }
         
+        /**
+         * @type {"easy"|"medium"|"hard"|"custom"}
+         */
         this.difficulty = difficulty;
+
+        /**
+         * @type {Tile[][]}
+         */
         this.map = this.createMap();
 
+        /**
+         * @type {number}
+         */
         this.numberOfPlacedFlags = 0;
 
         document.getElementById('flag-counter-text').innerText =  this.numberOfPlacedFlags + "/" + this.numberOfBombs;
 
+        /**
+         * @type {boolean}
+         */
         this.hasLost = false;
+
+        /**
+         * @type {boolean}
+         */
         this.hasWon = false;
+
+        /**
+         * @type {boolean}
+         */
         this.hasStarted = false;
 
         this.checkedTiles = {};
@@ -85,6 +112,11 @@ class Board {
         root.style.setProperty('--board-height', this.size.height);
     }
 
+    /**
+     * 
+     * @param {{x: number, y: number}[]} tilesToExclude 
+     * @returns {Tile[][]}
+     */
     createMap(tilesToExclude = []) {
         // Clear tiles
         document.querySelector("board").innerHTML = "";
@@ -166,7 +198,39 @@ class Board {
 
         tile.isVisualized = true;
 
-        tile.sprite.onmousedown = () => {};
+        /**
+         * When an already revealed tile is clicked it will reveal all nearby tiles if enough flags have been placed
+         */
+        tile.sprite.onmousedown = (ev) => {
+            // Only accept Left-Clicks
+            if (ev.button != 0) return;
+
+            var flaggedBombs = 0;
+            x = tile.position.x;
+            y = tile.position.y;
+
+            for (var dx = -1; dx <= 1; dx++) {
+                for (var dy = -1; dy <= 1; dy++) {
+                    if (x + dx < 0 || y + dy < 0 || x + dx > this.size.width - 1 || y + dy > this.size.height - 1) continue;
+                    if (this.map[x + dx][y + dy].isFlagged) {
+                        flaggedBombs += 1;
+                        if (flaggedBombs >= tile.numberOfBombs) break;
+                    }
+                }
+            }
+
+            if (flaggedBombs >= tile.numberOfBombs) {
+                for (var dx = -1; dx <= 1; dx++) {
+                    for (var dy = -1; dy <= 1; dy++) {
+                        if (x + dx < 0 || y + dy < 0 || x + dx > this.size.width - 1 || y + dy > this.size.height - 1) continue;
+                        if (!this.map[x + dx][y + dy].isFlagged) {
+                            this.visualizeMapAt(x + dx, y + dy);
+                        }
+                    }
+                }
+            }
+        };
+
         tile.sprite.style.cursor = "default";
 
         if (tile.isBomb) {
@@ -184,6 +248,7 @@ class Board {
 
         } else if (tile.numberOfBombs != 0) {
             tile.sprite.style.color = Board.COLORS[tile.numberOfBombs - 1];
+            tile.sprite.style.cursor = "pointer";
             tile.sprite.innerHTML = "<span>" + tile.numberOfBombs + "</span>";
         } else {
             // Check cardinal directions
